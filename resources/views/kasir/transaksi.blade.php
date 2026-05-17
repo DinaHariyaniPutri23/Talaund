@@ -10,7 +10,7 @@
     <!-- SEKSI 1: DATA PELANGGAN -->
     <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 relative">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase">Seksi 1: Data Pelanggan</h3>
+            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase">Langkah 1: Data Pelanggan</h3>
             <span id="status-pelanggan" class="text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg transition-colors">Pelanggan Baru</span>
         </div>
         <div class="flex flex-col items-start gap-4">
@@ -60,7 +60,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- SEKSI 2: DETAIL CUCIAN -->
         <div class="lg:col-span-2 bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100">
-            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Seksi 2: Detail Cucian</h3>
+            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Langkah 2: Detail Cucian</h3>
             
             <div class="space-y-6">
                 <!-- 1. Pilih Item -->
@@ -68,11 +68,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item</label>
                     <div class="relative">
                         <select id="item-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-price="0">-- Pilih Item --</option>
-                            <option value="bedcover" data-price="25000">Bedcover</option>
-                            <option value="baju" data-price="7000">Baju Kiloan</option>
-                            <option value="celana" data-price="6000">Celana Kiloan</option>
-                            <option value="sepatu" data-price="35000">Sepatu (Pasang)</option>
+                            <option value="" data-price="0" data-nama="">-- Pilih Item --</option>
+                            @foreach($items as $item)
+                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}">{{ $item->nama_item }}</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -85,10 +84,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">2. Jenis Pencucian</label>
                     <div class="relative">
                         <select id="pencucian-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="cuci_setrika" data-multiplier="1">Cuci + Setrika</option>
-                            <option value="cuci" data-multiplier="0.8">Cuci Saja</option>
-                            <option value="setrika" data-multiplier="0.7">Setrika Saja</option>
-                            <option value="cuci_kering" data-multiplier="0.9">Cuci Kering</option>
+                            <option value="" data-harga="0">-- Pilih Pencucian --</option>
+                            @foreach($pencucians as $pencucian)
+                                <option value="{{ $pencucian->id }}" data-harga="{{ $pencucian->harga }}">{{ $pencucian->nama_pencucian }}</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -101,9 +100,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">3. Jenis Layanan</label>
                     <div class="relative">
                         <select id="layanan-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="reguler" data-multiplier="1">Reguler</option>
-                            <option value="express" data-multiplier="1.5">Express (1 Hari)</option>
-                            <option value="kilat" data-multiplier="2">Kilat (6 Jam)</option>
+                            <option value="" data-harga="0">-- Pilih Layanan --</option>
+                            @foreach($layanans as $layanan)
+                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga }}">{{ $layanan->nama_layanan }}</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -116,8 +116,10 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">4. Jenis Pengiriman</label>
                     <div class="relative">
                         <select id="pengiriman-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="diambil">Diambil Sendiri</option>
-                            <option value="diantar">Diantar Kurir</option>
+                            <option value="">-- Pilih Pengiriman --</option>
+                            @foreach($pengirimans as $pengiriman)
+                                <option value="{{ $pengiriman->id }}">{{ $pengiriman->pilihan_pengiriman }}</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -153,7 +155,7 @@
 
         <!-- SEKSI 3: RINGKASAN NOTA -->
         <div class="bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col">
-            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Seksi 3: Ringkasan Nota</h3>
+            <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Langkah 3: Ringkasan Nota</h3>
             
             <div class="mb-4 pb-4 border-b border-gray-100">
                 <p class="text-sm text-gray-500 mb-1">Pelanggan:</p>
@@ -189,9 +191,10 @@
                     <span class="text-sm text-gray-500 font-medium w-1/3">Promo:</span>
                     <div class="relative w-2/3">
                         <select id="promo-select" class="block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="0">Pilih Promo</option>
-                            <option value="10">Diskon 10%</option>
-                            <option value="5000">Potongan Rp 5.000</option>
+                            <option value="0" data-potongan="0">Pilih Promo</option>
+                            @foreach($promos as $promo)
+                                <option value="{{ $promo->id }}" data-potongan="{{ $promo->potongan }}">{{ $promo->nama_promo }} (Potongan Rp {{ number_format($promo->potongan, 0, ',', '.') }})</option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
                             <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -206,12 +209,17 @@
             </div>
 
             <!-- Payment Buttons -->
-            <div class="grid grid-cols-2 gap-3 mt-6">
-                <button class="py-3.5 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-xl font-bold text-sm transition-all shadow-sm">
-                    BAYAR TUNAI
-                </button>
-                <button class="py-3.5 bg-blue-600 hover:bg-blue-700 text-white border-2 border-blue-600 rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/30">
-                    BAYAR QRIS
+            <div class="mt-6 space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <button id="btn-bayar-tunai" class="py-3.5 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-xl font-bold text-sm transition-all shadow-sm">
+                        BAYAR TUNAI
+                    </button>
+                    <button id="btn-bayar-nanti" class="py-3.5 bg-orange-100 text-orange-600 hover:bg-orange-200 border-2 border-orange-200 rounded-xl font-bold text-sm transition-all shadow-sm">
+                        BAYAR NANTI
+                    </button>
+                </div>
+                <button id="btn-bayar-qris" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/30">
+                    BAYAR QRIS (TUNDA)
                 </button>
             </div>
         </div>
@@ -255,15 +263,18 @@
         const promoSelect = document.getElementById('promo-select');
         const totalDisplay = document.getElementById('total-display');
 
-        // Simulasi database pelanggan
-        const mockPelanggan = [
-            { id: 1, nama: 'Ahmad Nazri', hp: '081234567890', alamat: 'Jl. Merdeka No. 45, Kebayoran Baru, Jakarta Selatan' },
-            { id: 2, nama: 'Budi Santoso', hp: '085712341234', alamat: 'Perum. Indah Makmur Blok B/12, Depok' },
-            { id: 3, nama: 'Siti Aminah', hp: '081999888777', alamat: 'Jl. Mawar Raya No. 3, Bekasi Barat' },
-            { id: 4, nama: 'Dani', hp: '089765432123', alamat: 'Jl. Kenangan No. 10, Bandung' },
-            { id: 5, nama: 'Danial', hp: '089711223344', alamat: 'Perum. Jaya Abadi Blok C/4' },
-            { id: 6, nama: 'Rina', hp: '089788990011', alamat: 'Jl. Melati No. 5, Jakarta' }
-        ];
+        // Data pelanggan dari database
+        @php
+            $mappedPelanggan = $pelanggans->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'nama' => $p->nama_lengkap,
+                    'hp' => $p->no_telepon,
+                    'alamat' => $p->alamat
+                ];
+            });
+        @endphp
+        const mockPelanggan = @json($mappedPelanggan);
 
         // Fungsi mengubah status jika form diedit manual
         const checkEditStatus = () => {
@@ -302,7 +313,10 @@
 
             if(keyword.length >= 2) {
                 // Filter cari multiple pelanggan (berdasarkan nama atau no HP yang mengandung keyword)
-                const results = mockPelanggan.filter(p => p.nama.toLowerCase().includes(keyword) || p.hp.includes(keyword));
+                const results = mockPelanggan.filter(p => 
+                    (p.nama ? String(p.nama).toLowerCase().includes(keyword) : false) || 
+                    (p.hp ? String(p.hp).includes(keyword) : false)
+                );
                 
                 if(results.length > 0) {
                     results.forEach(p => {
@@ -402,35 +416,47 @@
 
             const pencucianOption = pencucianSelect.options[pencucianSelect.selectedIndex];
             const pencucianText = pencucianOption.text;
-            const pencucianMultiplier = parseFloat(pencucianOption.getAttribute('data-multiplier'));
+            const pencucianHarga = parseFloat(pencucianOption.getAttribute('data-harga')) || 0;
             
             const layananOption = layananSelect.options[layananSelect.selectedIndex];
             const layananText = layananOption.text;
-            const layananMultiplier = parseFloat(layananOption.getAttribute('data-multiplier'));
+            const layananHarga = parseFloat(layananOption.getAttribute('data-harga')) || 0;
             
             const pengirimanText = pengirimanSelect.options[pengirimanSelect.selectedIndex].text;
             
             const qty = parseFloat(qtyInput.value) || 1;
             const unit = unitSelect.value;
             
-            // Hitung harga per baris (Simulasi: Harga dasar * Pengali Jenis Cuci * Pengali Layanan * Qty)
-            const itemPrice = basePrice * pencucianMultiplier * layananMultiplier * qty;
+            // Logika Harga Opsi A (Hybrid)
+            // Jika harga dasar item > 0 (Satuan), maka abaikan harga pencucian.
+            // Jika harga dasar item = 0 (Kiloan), maka ambil harga pencucian.
+            const basePriceToUse = basePrice > 0 ? basePrice : pencucianHarga;
+            const itemPrice = (basePriceToUse + layananHarga) * qty;
             
             const itemId = Date.now().toString();
 
-            // Masukkan ke array keranjang
+            // Masukkan ke array keranjang dengan struktur data mentah untuk dikirim ke backend
             cart.push({
-                id: itemId,
+                id: itemId, // Temporary id
+                item_id: itemSelect.value,
+                pencucian_id: pencucianSelect.value,
+                layanan_id: layananSelect.value,
+                // Label string hanya untuk UI
                 name: `${itemText} (${pencucianText})`,
                 layanan: layananText,
                 pengiriman: pengirimanText,
                 qty: `${qty} ${unit}`,
-                price: itemPrice
+                qty_num: qty,
+                price: itemPrice,
+                unitPrice: basePriceToUse + layananHarga
             });
 
-            // Reset Form secukupnya agar bisa input barang baru dengan cepat
+            // Kosongkan seluruh Sesi 2 setelah item ditambah ke keranjang (kecuali pengiriman karena berlaku untuk 1 nota)
             itemSelect.value = "";
+            pencucianSelect.value = "";
+            layananSelect.value = "";
             qtyInput.value = 1;
+            unitSelect.value = "pcs";
 
             // Gambar ulang tampilan keranjang
             renderCart();
@@ -463,8 +489,8 @@
                         <div class="pl-3 text-xs text-gray-600 space-y-1.5 border-l-2 border-blue-200">
                             <p>Layanan: <span class="font-medium text-gray-800">${item.layanan}</span></p>
                             <p>Pengiriman: <span class="font-medium text-gray-800">${item.pengiriman}</span></p>
-                            <p>Qty: <span class="font-medium text-gray-800">${item.qty}</span></p>
-                            <p>Harga: <span class="font-bold text-blue-600">${formatRupiah(item.price)}</span></p>
+                            <p>Qty: <span class="font-medium text-gray-800">${item.qty} <span class="text-gray-400 font-normal">(x ${formatRupiah(item.unitPrice)})</span></span></p>
+                            <p>Total Harga: <span class="font-bold text-blue-600">${formatRupiah(item.price)}</span></p>
                         </div>
                     `;
                     cartContainer.appendChild(itemDiv);
@@ -488,16 +514,8 @@
         function calculateTotals() {
             subtotalDisplay.innerText = formatRupiah(subtotal);
             
-            let promoVal = parseFloat(promoSelect.value) || 0;
-            let promoDiscount = 0;
-
-            if (promoVal === 10) {
-                // Diskon 10%
-                promoDiscount = subtotal * 0.10;
-            } else if (promoVal > 10) {
-                // Potongan Nominal
-                promoDiscount = promoVal;
-            }
+            const selectedPromo = promoSelect.options[promoSelect.selectedIndex];
+            let promoDiscount = parseFloat(selectedPromo.getAttribute('data-potongan')) || 0;
             
             let total = subtotal - promoDiscount;
             if(total < 0) total = 0; // Jangan sampai total minus
@@ -510,6 +528,98 @@
         
         // Panggil calculate awal
         calculateTotals();
+
+        // TOMBOL BAYAR TUNAI (Proses Simpan Transaksi)
+        const btnBayarTunai = document.getElementById('btn-bayar-tunai');
+        const btnBayarNanti = document.getElementById('btn-bayar-nanti');
+        const btnBayarQris = document.getElementById('btn-bayar-qris');
+
+        btnBayarTunai.addEventListener('click', function() {
+            prosesPembayaran('paid', this);
+        });
+
+        if (btnBayarNanti) {
+            btnBayarNanti.addEventListener('click', function() {
+                prosesPembayaran('unpaid', this);
+            });
+        }
+
+        function prosesPembayaran(statusBayar, btnElement) {
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+
+            const pelanggan_id = inputIdPelanggan.value;
+            const pelanggan_nama = inputNama.value.trim();
+            const pelanggan_hp = inputHp.value.trim();
+            const pelanggan_alamat = inputAlamat.value.trim();
+
+            if (!pelanggan_nama) {
+                alert('Silakan cari pelanggan atau masukkan nama pelanggan baru secara manual!');
+                return;
+            }
+
+            const pengiriman_id = pengirimanSelect.value;
+            if (!pengiriman_id) {
+                alert('Silakan pilih jenis pengiriman terlebih dahulu (di Langkah 2)!');
+                return;
+            }
+
+            const promo_id = promoSelect.value;
+
+            // Ambil total harga terbaru
+            let promoDiscount = parseFloat(promoSelect.options[promoSelect.selectedIndex].getAttribute('data-potongan')) || 0;
+            let totalAkhir = subtotal - promoDiscount;
+            if(totalAkhir < 0) totalAkhir = 0;
+
+            // Loading state
+            const originalText = btnElement.innerHTML;
+            btnElement.disabled = true;
+            btnElement.innerHTML = 'MEMPROSES...';
+
+            fetch('{{ route("dashboard.kasir.transaksi.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    pelanggan_id: pelanggan_id,
+                    pelanggan_nama: pelanggan_nama,
+                    pelanggan_hp: pelanggan_hp,
+                    pelanggan_alamat: pelanggan_alamat,
+                    pengiriman_id: pengiriman_id,
+                    promo_id: promo_id,
+                    status_bayar: statusBayar,
+                    total: totalAkhir,
+                    cart: cart
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    // Redirect ke struk digital
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Gagal menyimpan transaksi: ' + data.message);
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan pada server.');
+                btnElement.disabled = false;
+                btnElement.innerHTML = originalText;
+            });
+        }
+
+        // TOMBOL BAYAR QRIS
+        const btnBayarQris = document.getElementById('btn-bayar-qris');
+        btnBayarQris.addEventListener('click', function() {
+            alert('Fitur Pembayaran QRIS / Xendit sedang dalam proses integrasi.');
+        });
     });
 </script>
 @endpush

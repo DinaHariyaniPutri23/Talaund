@@ -12,7 +12,7 @@ class Pengguna extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = 'pengguna';
+    protected $table = 'user';
 
     /**
      * The attributes that are mass assignable.
@@ -22,7 +22,7 @@ class Pengguna extends Authenticatable
     protected $fillable = [
         'nama',
         'email',
-        'password',
+        'kata_sandi',
         'peran',
     ];
 
@@ -32,7 +32,7 @@ class Pengguna extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        'kata_sandi',
         'remember_token',
     ];
 
@@ -43,6 +43,11 @@ class Pengguna extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'kata_sandi' => 'hashed',
     ];
+
+    public function getAuthPassword()
+    {
+        return $this->kata_sandi;
+    }
 }

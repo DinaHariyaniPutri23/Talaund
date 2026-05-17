@@ -16,8 +16,8 @@
             <div>
                 <p class="text-[0.8rem] font-bold text-gray-700 tracking-wider mb-2">STATUS XENDIT</p>
                 <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <h3 class="text-lg font-bold text-green-500 uppercase tracking-wide">TERHUBUNG</h3>
+                    <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                    <h3 class="text-lg font-bold text-gray-500 uppercase tracking-wide">BELUM INTEGRASI</h3>
                 </div>
             </div>
         </div>
@@ -30,8 +30,8 @@
             <div>
                 <p class="text-[0.8rem] font-bold text-gray-700 tracking-wider mb-2">STATUS PRINTER</p>
                 <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <h3 class="text-lg font-bold text-green-500 uppercase tracking-wide">READY</h3>
+                    <div class="w-3 h-3 rounded-full bg-gray-400"></div>
+                    <h3 class="text-lg font-bold text-gray-500 uppercase tracking-wide">BELUM INTEGRASI</h3>
                 </div>
             </div>
         </div>
@@ -43,7 +43,7 @@
             </div>
             <div>
                 <p class="text-[0.8rem] font-bold text-gray-700 tracking-wider mb-1">TOTAL PELANGGAN</p>
-                <h3 class="text-3xl font-bold text-blue-600">150</h3>
+                <h3 class="text-3xl font-bold text-blue-600">{{ $totalPelanggan }}</h3>
                 <p class="text-sm text-gray-500">Orang</p>
             </div>
         </div>
@@ -66,47 +66,24 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100/50">
-                    <!-- Row 1 -->
+                    @forelse($riwayatAktivitas as $riwayat)
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="py-5 px-6">
                             <div class="flex items-center gap-2 text-gray-800 font-medium">
                                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                20:45
+                                {{ \Carbon\Carbon::parse($riwayat->tanggal_transaksi)->format('d/m/Y H:i') }}
                             </div>
                         </td>
                         <td class="py-5 px-6">
-                            <span class="inline-flex items-center px-3 py-1 rounded bg-blue-100/70 text-blue-600 text-xs font-semibold tracking-wide">System</span>
+                            <span class="inline-flex items-center px-3 py-1 rounded bg-blue-100/70 text-blue-600 text-xs font-semibold tracking-wide">{{ $riwayat->pengguna->nama ?? 'Sistem' }}</span>
                         </td>
-                        <td class="py-5 px-6 text-gray-700 font-medium">Webhook Xendit: #ML-099 Lunas</td>
+                        <td class="py-5 px-6 text-gray-700 font-medium">Transaksi Baru: INV-{{ str_pad($riwayat->id, 5, '0', STR_PAD_LEFT) }} (Rp {{ number_format($riwayat->total_transaksi, 0, ',', '.') }})</td>
                     </tr>
-                    
-                    <!-- Row 2 -->
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="py-5 px-6">
-                            <div class="flex items-center gap-2 text-gray-800 font-medium">
-                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                20:30
-                            </div>
-                        </td>
-                        <td class="py-5 px-6">
-                            <span class="inline-flex items-center px-3 py-1 rounded bg-green-100/70 text-green-600 text-xs font-semibold tracking-wide">Admin Mila</span>
-                        </td>
-                        <td class="py-5 px-6 text-gray-700 font-medium">Mengubah Harga Layanan Satuan</td>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="py-8 text-center text-gray-500 italic">Belum ada riwayat transaksi.</td>
                     </tr>
-
-                    <!-- Row 3 -->
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="py-5 px-6">
-                            <div class="flex items-center gap-2 text-gray-800 font-medium">
-                                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                19:15
-                            </div>
-                        </td>
-                        <td class="py-5 px-6">
-                            <span class="inline-flex items-center px-3 py-1 rounded bg-purple-100/70 text-purple-600 text-xs font-semibold tracking-wide">Kasir Ahmad</span>
-                        </td>
-                        <td class="py-5 px-6 text-gray-700 font-medium">Menghapus Data Transaksi #088</td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
