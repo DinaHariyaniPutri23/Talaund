@@ -14,46 +14,61 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SuperAdmin\DataMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\ItemLaundryMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\LayananMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\PelangganMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\PencucianMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\PengirimanMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\PromoMasterController;
+use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\ManajemenUserController;
+use App\Http\Controllers\SuperAdmin\RiwayatController as SuperAdminRiwayatController;
+use App\Http\Controllers\SuperAdmin\TransaksiController as SuperAdminTransaksiController;
+use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
+use App\Http\Controllers\Kasir\RiwayatController as KasirRiwayatController;
+use App\Http\Controllers\Kasir\TransaksiController as KasirTransaksiController;
+use App\Http\Controllers\PelangganController;
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard/super-admin', [App\Http\Controllers\SuperAdmin\DashboardController::class, 'index'])->name('dashboard.super_admin');
+    Route::get('/dashboard/super-admin', [SuperAdminDashboardController::class, 'index'])->name('dashboard.super_admin');
 
-    Route::get('/dashboard/super-admin/data-master', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'index'])->name('dashboard.super_admin.data_master');
-    Route::post('/dashboard/super-admin/data-master/pelanggan', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storePelanggan'])->name('super_admin.pelanggan.store');
-    Route::put('/dashboard/super-admin/data-master/pelanggan/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updatePelanggan'])->name('super_admin.pelanggan.update');
-    Route::delete('/dashboard/super-admin/data-master/pelanggan/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyPelanggan'])->name('super_admin.pelanggan.destroy');
+    Route::get('/dashboard/super-admin/data-master', [DataMasterController::class, 'index'])->name('dashboard.super_admin.data_master');
+    Route::post('/dashboard/super-admin/data-master/pelanggan', [PelangganMasterController::class, 'store'])->name('super_admin.pelanggan.store');
+    Route::put('/dashboard/super-admin/data-master/pelanggan/{id}', [PelangganMasterController::class, 'update'])->name('super_admin.pelanggan.update');
+    Route::delete('/dashboard/super-admin/data-master/pelanggan/{id}', [PelangganMasterController::class, 'destroy'])->name('super_admin.pelanggan.destroy');
 
-    Route::post('/dashboard/super-admin/data-master/layanan', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storeLayanan'])->name('super_admin.layanan.store');
-    Route::put('/dashboard/super-admin/data-master/layanan/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updateLayanan'])->name('super_admin.layanan.update');
-    Route::delete('/dashboard/super-admin/data-master/layanan/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyLayanan'])->name('super_admin.layanan.destroy');
+    Route::post('/dashboard/super-admin/data-master/layanan', [LayananMasterController::class, 'store'])->name('super_admin.layanan.store');
+    Route::put('/dashboard/super-admin/data-master/layanan/{id}', [LayananMasterController::class, 'update'])->name('super_admin.layanan.update');
+    Route::delete('/dashboard/super-admin/data-master/layanan/{id}', [LayananMasterController::class, 'destroy'])->name('super_admin.layanan.destroy');
 
-    Route::post('/dashboard/super-admin/data-master/pencucian', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storePencucian'])->name('super_admin.pencucian.store');
-    Route::put('/dashboard/super-admin/data-master/pencucian/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updatePencucian'])->name('super_admin.pencucian.update');
-    Route::delete('/dashboard/super-admin/data-master/pencucian/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyPencucian'])->name('super_admin.pencucian.destroy');
+    Route::post('/dashboard/super-admin/data-master/pencucian', [PencucianMasterController::class, 'store'])->name('super_admin.pencucian.store');
+    Route::put('/dashboard/super-admin/data-master/pencucian/{id}', [PencucianMasterController::class, 'update'])->name('super_admin.pencucian.update');
+    Route::delete('/dashboard/super-admin/data-master/pencucian/{id}', [PencucianMasterController::class, 'destroy'])->name('super_admin.pencucian.destroy');
 
-    Route::post('/dashboard/super-admin/data-master/pengiriman', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storePengiriman'])->name('super_admin.pengiriman.store');
-    Route::put('/dashboard/super-admin/data-master/pengiriman/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updatePengiriman'])->name('super_admin.pengiriman.update');
-    Route::delete('/dashboard/super-admin/data-master/pengiriman/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyPengiriman'])->name('super_admin.pengiriman.destroy');
+    Route::post('/dashboard/super-admin/data-master/pengiriman', [PengirimanMasterController::class, 'store'])->name('super_admin.pengiriman.store');
+    Route::put('/dashboard/super-admin/data-master/pengiriman/{id}', [PengirimanMasterController::class, 'update'])->name('super_admin.pengiriman.update');
+    Route::delete('/dashboard/super-admin/data-master/pengiriman/{id}', [PengirimanMasterController::class, 'destroy'])->name('super_admin.pengiriman.destroy');
 
-    Route::post('/dashboard/super-admin/data-master/item', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storeItem'])->name('super_admin.item.store');
-    Route::put('/dashboard/super-admin/data-master/item/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updateItem'])->name('super_admin.item.update');
-    Route::delete('/dashboard/super-admin/data-master/item/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyItem'])->name('super_admin.item.destroy');
+    Route::post('/dashboard/super-admin/data-master/item', [ItemLaundryMasterController::class, 'store'])->name('super_admin.item.store');
+    Route::put('/dashboard/super-admin/data-master/item/{id}', [ItemLaundryMasterController::class, 'update'])->name('super_admin.item.update');
+    Route::delete('/dashboard/super-admin/data-master/item/{id}', [ItemLaundryMasterController::class, 'destroy'])->name('super_admin.item.destroy');
 
-    Route::post('/dashboard/super-admin/data-master/promo', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'storePromo'])->name('super_admin.promo.store');
-    Route::put('/dashboard/super-admin/data-master/promo/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'updatePromo'])->name('super_admin.promo.update');
-    Route::delete('/dashboard/super-admin/data-master/promo/{id}', [App\Http\Controllers\SuperAdmin\DataMasterController::class, 'destroyPromo'])->name('super_admin.promo.destroy');
+    Route::post('/dashboard/super-admin/data-master/promo', [PromoMasterController::class, 'store'])->name('super_admin.promo.store');
+    Route::put('/dashboard/super-admin/data-master/promo/{id}', [PromoMasterController::class, 'update'])->name('super_admin.promo.update');
+    Route::delete('/dashboard/super-admin/data-master/promo/{id}', [PromoMasterController::class, 'destroy'])->name('super_admin.promo.destroy');
 
-    Route::get('/dashboard/super-admin/manajemen-user', [App\Http\Controllers\SuperAdmin\ManajemenUserController::class, 'index'])->name('dashboard.super_admin.manajemen_user');
-    Route::post('/dashboard/super-admin/manajemen-user', [App\Http\Controllers\SuperAdmin\ManajemenUserController::class, 'store'])->name('super_admin.manajemen_user.store');
-    Route::put('/dashboard/super-admin/manajemen-user/{id}', [App\Http\Controllers\SuperAdmin\ManajemenUserController::class, 'update'])->name('super_admin.manajemen_user.update');
-    Route::delete('/dashboard/super-admin/manajemen-user/{id}', [App\Http\Controllers\SuperAdmin\ManajemenUserController::class, 'destroy'])->name('super_admin.manajemen_user.destroy');
+    Route::get('/dashboard/super-admin/manajemen-user', [ManajemenUserController::class, 'index'])->name('dashboard.super_admin.manajemen_user');
+    Route::post('/dashboard/super-admin/manajemen-user', [ManajemenUserController::class, 'store'])->name('super_admin.manajemen_user.store');
+    Route::put('/dashboard/super-admin/manajemen-user/{id}', [ManajemenUserController::class, 'update'])->name('super_admin.manajemen_user.update');
+    Route::delete('/dashboard/super-admin/manajemen-user/{id}', [ManajemenUserController::class, 'destroy'])->name('super_admin.manajemen_user.destroy');
 
-    Route::get('/dashboard/super-admin/transaksi', [App\Http\Controllers\SuperAdmin\TransaksiController::class, 'index'])->name('dashboard.super_admin.transaksi');
-    Route::get('/dashboard/super-admin/riwayat', [App\Http\Controllers\SuperAdmin\RiwayatController::class, 'index'])->name('dashboard.super_admin.riwayat');
+    Route::get('/dashboard/super-admin/transaksi', [SuperAdminTransaksiController::class, 'index'])->name('dashboard.super_admin.transaksi');
+    Route::get('/dashboard/super-admin/riwayat', [SuperAdminRiwayatController::class, 'index'])->name('dashboard.super_admin.riwayat');
 
     Route::get('/dashboard/super-admin/kendali', function () {
         return view('super_admin.kendali');
@@ -63,29 +78,28 @@ Route::middleware('auth')->group(function () {
         return view('super_admin.konfigurasi');
     })->name('dashboard.super_admin.konfigurasi');
 
-    Route::get('/dashboard/kasir', [App\Http\Controllers\Kasir\DashboardController::class, 'index'])->name('dashboard.kasir');
+    Route::get('/dashboard/kasir', [KasirDashboardController::class, 'index'])->name('dashboard.kasir');
 
-    Route::get('/dashboard/kasir/pelanggan', [App\Http\Controllers\PelangganController::class, 'index'])->name('dashboard.kasir.pelanggan');
-    Route::post('/dashboard/kasir/pelanggan', [App\Http\Controllers\PelangganController::class, 'store'])->name('pelanggan.store');
-    Route::put('/dashboard/kasir/pelanggan/{id}', [App\Http\Controllers\PelangganController::class, 'update'])->name('pelanggan.update');
-    Route::delete('/dashboard/kasir/pelanggan/{id}', [App\Http\Controllers\PelangganController::class, 'destroy'])->name('pelanggan.destroy');
+    Route::get('/dashboard/kasir/pelanggan', [PelangganController::class, 'index'])->name('dashboard.kasir.pelanggan');
+    Route::post('/dashboard/kasir/pelanggan', [PelangganController::class, 'store'])->name('pelanggan.store');
+    Route::put('/dashboard/kasir/pelanggan/{id}', [PelangganController::class, 'update'])->name('pelanggan.update');
+    Route::delete('/dashboard/kasir/pelanggan/{id}', [PelangganController::class, 'destroy'])->name('pelanggan.destroy');
 
-    Route::get('/dashboard/kasir/transaksi', [App\Http\Controllers\Kasir\TransaksiController::class, 'create'])->name('dashboard.kasir.transaksi');
-    Route::post('/dashboard/kasir/transaksi/store', [App\Http\Controllers\Kasir\TransaksiController::class, 'store'])->name('dashboard.kasir.transaksi.store');
-    Route::get('/dashboard/kasir/transaksi/struk/{id}', [App\Http\Controllers\Kasir\TransaksiController::class, 'struk'])->name('dashboard.kasir.struk');
-    Route::post('/dashboard/kasir/transaksi/{id}/lunasi', [App\Http\Controllers\Kasir\TransaksiController::class, 'lunasi'])->name('dashboard.kasir.transaksi.lunasi');
+    Route::get('/dashboard/kasir/transaksi', [KasirTransaksiController::class, 'index'])->name('dashboard.kasir.transaksi');
+    Route::get('/dashboard/kasir/transaksi/create', [KasirTransaksiController::class, 'create'])->name('dashboard.kasir.transaksi.create');
+    Route::get('/dashboard/kasir/transaksi/{id}/edit-items', [KasirTransaksiController::class, 'editItemsPage'])->name('dashboard.kasir.transaksi.editItemsPage');
+    Route::post('/dashboard/kasir/transaksi/store', [KasirTransaksiController::class, 'store'])->name('dashboard.kasir.transaksi.store');
+    Route::get('/dashboard/kasir/transaksi/struk/{id}', [KasirTransaksiController::class, 'struk'])->name('dashboard.kasir.struk');
+    Route::post('/dashboard/kasir/transaksi/{id}/lunasi', [KasirTransaksiController::class, 'lunasi'])->name('dashboard.kasir.transaksi.lunasi');
+    Route::post('/dashboard/kasir/transaksi/{id}/update-pembayaran', [KasirTransaksiController::class, 'updatePembayaran'])->name('dashboard.kasir.transaksi.updatePembayaran');
+    Route::post('/dashboard/kasir/transaksi/{id}/void', [KasirTransaksiController::class, 'voidTransaksi'])->name('dashboard.kasir.transaksi.void');
+    Route::post('/dashboard/kasir/transaksi/{id}/edit-items', [KasirTransaksiController::class, 'editItems'])->name('dashboard.kasir.transaksi.editItems');
 
-    Route::get('/dashboard/kasir/riwayat', [App\Http\Controllers\Kasir\RiwayatController::class, 'index'])->name('dashboard.kasir.riwayat');
+    Route::get('/dashboard/kasir/riwayat', [KasirRiwayatController::class, 'index'])->name('dashboard.kasir.riwayat');
 
-    Route::get('/dashboard/pemilik', function () {
-        return view('pemilik.dashboard');
-    })->name('dashboard.pemilik');
+    Route::get('/dashboard/pemilik', [App\Http\Controllers\Pemilik\DashboardController::class, 'index'])->name('dashboard.pemilik');
 
-    Route::get('/dashboard/pemilik/transaksi', function () {
-        return view('pemilik.transaksi');
-    })->name('dashboard.pemilik.transaksi');
+    Route::get('/dashboard/pemilik/transaksi', [App\Http\Controllers\Pemilik\TransaksiController::class, 'index'])->name('dashboard.pemilik.transaksi');
 
-    Route::get('/dashboard/pemilik/laporan', function () {
-        return view('pemilik.laporan');
-    })->name('dashboard.pemilik.laporan');
+    Route::get('/dashboard/pemilik/laporan', [App\Http\Controllers\Pemilik\LaporanController::class, 'index'])->name('dashboard.pemilik.laporan');
 });

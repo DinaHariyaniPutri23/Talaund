@@ -16,6 +16,14 @@ class Transaksi extends Model
         'pengiriman_id',
         'tanggal_transaksi',
         'total_transaksi',
+        'status_transaksi',
+        'alasan_void',
+        'void_at',
+    ];
+
+    protected $casts = [
+        'tanggal_transaksi' => 'datetime',
+        'void_at' => 'datetime',
     ];
 
     public function detailTransaksi()

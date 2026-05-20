@@ -276,6 +276,26 @@
         @endphp
         const mockPelanggan = @json($mappedPelanggan);
 
+        // Check if pelanggan_id parameter exists in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pelangganIdParam = urlParams.get('pelanggan_id');
+        if (pelangganIdParam) {
+            const foundPelanggan = mockPelanggan.find(p => p.id == pelangganIdParam);
+            if (foundPelanggan) {
+                inputIdPelanggan.value = foundPelanggan.id;
+                inputNama.value = foundPelanggan.nama;
+                inputHp.value = foundPelanggan.hp;
+                inputAlamat.value = foundPelanggan.alamat;
+                
+                statusPelanggan.innerText = 'Pelanggan Terdaftar';
+                statusPelanggan.className = 'text-xs font-bold px-2.5 py-1 bg-green-100 text-green-700 rounded-lg transition-colors';
+                
+                namaPelangganDisplay.innerText = foundPelanggan.nama;
+                hpPelangganDisplay.innerText = foundPelanggan.hp;
+                alamatPelangganDisplay.innerText = foundPelanggan.alamat;
+            }
+        }
+
         // Fungsi mengubah status jika form diedit manual
         const checkEditStatus = () => {
             if(inputIdPelanggan.value !== '') {
@@ -427,11 +447,9 @@
             const qty = parseFloat(qtyInput.value) || 1;
             const unit = unitSelect.value;
             
-            // Logika Harga Opsi A (Hybrid)
-            // Jika harga dasar item > 0 (Satuan), maka abaikan harga pencucian.
-            // Jika harga dasar item = 0 (Kiloan), maka ambil harga pencucian.
-            const basePriceToUse = basePrice > 0 ? basePrice : pencucianHarga;
-            const itemPrice = (basePriceToUse + layananHarga) * qty;
+            // Hitung total harga: item + pencucian + layanan
+            const totalHargaPerItem = basePrice + pencucianHarga + layananHarga;
+            const itemPrice = totalHargaPerItem * qty;
             
             const itemId = Date.now().toString();
 
@@ -448,7 +466,7 @@
                 qty: `${qty} ${unit}`,
                 qty_num: qty,
                 price: itemPrice,
-                unitPrice: basePriceToUse + layananHarga
+                unitPrice: totalHargaPerItem
             });
 
             // Kosongkan seluruh Sesi 2 setelah item ditambah ke keranjang (kecuali pengiriman karena berlaku untuk 1 nota)
@@ -532,7 +550,6 @@
         // TOMBOL BAYAR TUNAI (Proses Simpan Transaksi)
         const btnBayarTunai = document.getElementById('btn-bayar-tunai');
         const btnBayarNanti = document.getElementById('btn-bayar-nanti');
-        const btnBayarQris = document.getElementById('btn-bayar-qris');
 
         btnBayarTunai.addEventListener('click', function() {
             prosesPembayaran('paid', this);

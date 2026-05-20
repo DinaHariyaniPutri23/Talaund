@@ -30,9 +30,21 @@ class TransaksiController extends Controller
             });
         }
 
+        // Hitung summary statistics dari SEMUA transaksi
+        $totalTransaksi = Transaksi::count();
+        $totalLunas = Transaksi::whereHas('pembayaran', function($q) {
+            $q->where('status_bayar', 'paid');
+        })->count();
+        $totalBelumLunas = Transaksi::whereHas('pembayaran', function($q) {
+            $q->where('status_bayar', '!=', 'paid');
+        })->count();
+        $totalDibatalkan = Transaksi::whereHas('pembayaran', function($q) {
+            $q->where('status_bayar', 'void');
+        })->count();
+
         // Urutkan dari yang terbaru, 20 data per halaman
         $transaksis = $query->latest('tanggal_transaksi')->paginate(20);
 
-        return view('super_admin.transaksi', compact('transaksis', 'search'));
+        return view('super_admin.transaksi', compact('transaksis', 'search', 'totalTransaksi', 'totalLunas', 'totalBelumLunas', 'totalDibatalkan'));
     }
 }

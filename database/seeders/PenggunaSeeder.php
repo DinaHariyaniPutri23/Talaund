@@ -14,25 +14,31 @@ class PenggunaSeeder extends Seeder
      */
     public function run(): void
     {
-        Pengguna::create([
-            'nama' => 'Super Admin',
-            'email' => 'admin@laundry.com',
-            'kata_sandi' => Hash::make('password'),
-            'peran' => 'super_admin',
-        ]);
+        Pengguna::updateOrCreate(
+            ['email' => 'admin@laundry.com'],
+            [
+                'nama' => 'Super Admin',
+                'kata_sandi' => Hash::make('password'),
+                'peran' => 'super_admin',
+            ]
+        );
 
-        Pengguna::create([
-            'nama' => 'Kasir Utama',
-            'email' => 'kasir@laundry.com',
-            'kata_sandi' => Hash::make('password'),
-            'peran' => 'kasir',
-        ]);
+        Pengguna::updateOrCreate(
+            ['email' => 'kasir@laundry.com'],
+            [
+                'nama' => 'Kasir Utama',
+                'kata_sandi' => Hash::make('password'),
+                'peran' => 'kasir',
+            ]
+        );
 
-        Pengguna::create([
-            'nama' => 'Pemilik Laundry',
-            'email' => 'pemilik@laundry.com',
-            'kata_sandi' => Hash::make('password'),
-            'peran' => 'pemilik',
-        ]);
+        Pengguna::updateOrCreate(
+            ['email' => 'pemilik@laundry.com'],
+            [
+                'nama' => 'Pemilik Laundry',
+                'kata_sandi' => Hash::make('password'),
+                'peran' => 'pemilik',
+            ]
+        );
     }
 }

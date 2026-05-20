@@ -9,37 +9,37 @@
 
     <!-- Summary Cards for Quick Audit -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-all">
             <div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Total Transaksi</p>
-                <h3 class="text-2xl font-bold text-gray-800">1,284</h3>
+                <h3 class="text-2xl font-bold text-gray-800">{{ number_format($totalTransaksi) }}</h3>
             </div>
             <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             </div>
         </div>
-        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-all">
             <div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Lunas</p>
-                <h3 class="text-2xl font-bold text-green-600">1,150</h3>
+                <h3 class="text-2xl font-bold text-green-600">{{ number_format($totalLunas) }}</h3>
             </div>
             <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
         </div>
-        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-all">
             <div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Belum Lunas</p>
-                <h3 class="text-2xl font-bold text-amber-500">120</h3>
+                <h3 class="text-2xl font-bold text-amber-500">{{ number_format($totalBelumLunas) }}</h3>
             </div>
             <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
         </div>
-        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex items-center justify-between hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-all">
             <div>
                 <p class="text-sm font-medium text-gray-500 mb-1">Dibatalkan</p>
-                <h3 class="text-2xl font-bold text-red-500">14</h3>
+                <h3 class="text-2xl font-bold text-red-500">{{ number_format($totalDibatalkan) }}</h3>
             </div>
             <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
