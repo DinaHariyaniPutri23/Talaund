@@ -21,6 +21,7 @@ use App\Http\Controllers\SuperAdmin\DataMaster\PelangganMasterController;
 use App\Http\Controllers\SuperAdmin\DataMaster\PencucianMasterController;
 use App\Http\Controllers\SuperAdmin\DataMaster\PengirimanMasterController;
 use App\Http\Controllers\SuperAdmin\DataMaster\PromoMasterController;
+use App\Http\Controllers\SuperAdmin\DataMaster\SatuanMasterController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ManajemenUserController;
 use App\Http\Controllers\SuperAdmin\RiwayatController as SuperAdminRiwayatController;
@@ -61,6 +62,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/super-admin/data-master/promo', [PromoMasterController::class, 'store'])->name('super_admin.promo.store');
     Route::put('/dashboard/super-admin/data-master/promo/{id}', [PromoMasterController::class, 'update'])->name('super_admin.promo.update');
     Route::delete('/dashboard/super-admin/data-master/promo/{id}', [PromoMasterController::class, 'destroy'])->name('super_admin.promo.destroy');
+
+    Route::post('/dashboard/super-admin/data-master/satuan', [SatuanMasterController::class, 'store'])->name('super_admin.satuan.store');
+    Route::put('/dashboard/super-admin/data-master/satuan/{id}', [SatuanMasterController::class, 'update'])->name('super_admin.satuan.update');
+    Route::delete('/dashboard/super-admin/data-master/satuan/{id}', [SatuanMasterController::class, 'destroy'])->name('super_admin.satuan.destroy');
 
     Route::get('/dashboard/super-admin/manajemen-user', [ManajemenUserController::class, 'index'])->name('dashboard.super_admin.manajemen_user');
     Route::post('/dashboard/super-admin/manajemen-user', [ManajemenUserController::class, 'store'])->name('super_admin.manajemen_user.store');

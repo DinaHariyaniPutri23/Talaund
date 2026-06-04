@@ -41,7 +41,10 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">No. WhatsApp / HP <span class="text-red-500">*</span></label>
-                    <input id="input-hp" type="text" class="block w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Contoh: 0812xxxx...">
+                    <div class="relative">
+                        <input id="input-hp" type="text" inputmode="numeric" maxlength="12" class="block w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:border-blue-500 transition-all" placeholder="Contoh: 08123456789" data-error="false">
+                        <div id="hp-error" class="text-xs text-red-500 mt-1 hidden">Nomor HP harus 11-12 angka (Contoh: 08123456789)</div>
+                    </div>
                 </div>
                 <div class="sm:col-span-2">
                     <label class="block text-xs font-medium text-gray-600 mb-1">Alamat Lengkap</label>
@@ -68,9 +71,9 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item</label>
                     <div class="relative">
                         <select id="item-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-price="0" data-nama="">-- Pilih Item --</option>
+                            <option value="" data-price="0" data-nama="" data-satuan="">-- Pilih Item --</option>
                             @foreach($items as $item)
-                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}">{{ $item->nama_item }}</option>
+                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}" data-satuan="{{ strtoupper($item->satuan) }}">{{ $item->nama_item }} ({{ strtoupper($item->satuan) }})</option>
                             @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -133,15 +136,8 @@
                     <div class="flex flex-col sm:flex-row items-center gap-3">
                         <input id="qty-input" type="number" class="block w-full sm:w-24 pl-4 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-center" value="1" min="1">
                         
-                        <div class="relative w-full sm:w-32">
-                            <select id="unit-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                                <option value="pcs">Pcs</option>
-                                <option value="kg">Kg</option>
-                                <option value="pasang">Pasang</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
+                        <div class="relative w-full sm:w-32 flex items-center">
+                            <span id="satuan-display" class="px-4 py-3 bg-gray-100 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 w-full text-center">-</span>
                         </div>
                         
                         <button id="btn-tambah" type="button" class="w-full sm:flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-sm transition-all shadow-sm mt-3 sm:mt-0">
@@ -253,7 +249,7 @@
         const layananSelect = document.getElementById('layanan-select');
         const pengirimanSelect = document.getElementById('pengiriman-select');
         const qtyInput = document.getElementById('qty-input');
-        const unitSelect = document.getElementById('unit-select');
+        const satuanDisplay = document.getElementById('satuan-display');
         const btnTambah = document.getElementById('btn-tambah');
         
         const cartContainer = document.getElementById('cart-container');
@@ -279,6 +275,10 @@
         // Check if pelanggan_id parameter exists in URL
         const urlParams = new URLSearchParams(window.location.search);
         const pelangganIdParam = urlParams.get('pelanggan_id');
+        
+        // Define hpError here untuk digunakan di validateHP
+        const hpError = document.getElementById('hp-error');
+        
         if (pelangganIdParam) {
             const foundPelanggan = mockPelanggan.find(p => p.id == pelangganIdParam);
             if (foundPelanggan) {
@@ -304,15 +304,49 @@
             }
         };
 
-        // Update display data pelanggan di Ringkasan Nota tiap kali input form berubah
+        // Validasi Nomor HP
+        const validateHP = () => {
+            const hpValue = inputHp.value.trim();
+            const isValid = /^\d{11,12}$/.test(hpValue); // Hanya angka, 11-12 digit
+            
+            if (hpValue.length === 0) {
+                // Kosong tidak error, cukup warning
+                inputHp.classList.remove('border-red-500', 'focus:ring-red-500');
+                inputHp.classList.add('border-gray-200', 'focus:ring-blue-500');
+                hpError.classList.add('hidden');
+                inputHp.dataset.error = 'false';
+            } else if (!isValid) {
+                // Error: tidak sesuai format
+                inputHp.classList.remove('border-gray-200', 'focus:ring-blue-500');
+                inputHp.classList.add('border-red-500', 'focus:ring-red-500');
+                hpError.classList.remove('hidden');
+                inputHp.dataset.error = 'true';
+            } else {
+                // Valid
+                inputHp.classList.remove('border-red-500', 'focus:ring-red-500');
+                inputHp.classList.add('border-gray-200', 'focus:ring-blue-500');
+                hpError.classList.add('hidden');
+                inputHp.dataset.error = 'false';
+            }
+        };
+
+        // Update display nama
         inputNama.addEventListener('input', function() {
             namaPelangganDisplay.innerText = this.value.trim() !== '' ? this.value : '-';
             checkEditStatus();
         });
+
+        // Hanya terima input angka, hapus karakter non-numerik
         inputHp.addEventListener('input', function() {
-            hpPelangganDisplay.innerText = this.value.trim() !== '' ? this.value : '-';
+            // Hapus semua karakter yang bukan angka
+            this.value = this.value.replace(/[^\d]/g, '');
+            validateHP();
             checkEditStatus();
+            // Update display HP
+            hpPelangganDisplay.innerText = this.value.trim() !== '' ? this.value : '-';
         });
+
+        // Update display nota
         inputAlamat.addEventListener('input', function() {
             alamatPelangganDisplay.innerText = this.value.trim() !== '' ? this.value : '-';
             checkEditStatus();
@@ -358,6 +392,9 @@
                             inputHp.value = p.hp;
                             inputAlamat.value = p.alamat;
                             
+                            // Validasi HP format
+                            validateHP();
+                            
                             // Ubah status badge
                             statusPelanggan.innerText = 'Pelanggan Terdaftar';
                             statusPelanggan.className = 'text-xs font-bold px-2.5 py-1 bg-green-100 text-green-700 rounded-lg transition-colors';
@@ -388,6 +425,13 @@
             }
         });
 
+        // Update satuan display saat item dipilih
+        itemSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const satuan = selectedOption.getAttribute('data-satuan') || '-';
+            satuanDisplay.innerText = satuan;
+        });
+
         // Hide dropdown saat klik di luar
         document.addEventListener('click', function(e) {
             if (!pelangganSearch.contains(e.target) && !searchDropdown.contains(e.target)) {
@@ -409,6 +453,11 @@
             inputNama.value = '';
             inputHp.value = '';
             inputAlamat.value = '';
+            
+            // Reset styling HP
+            inputHp.classList.remove('border-red-500', 'focus:ring-red-500');
+            inputHp.classList.add('border-gray-200', 'focus:ring-blue-500');
+            hpError.classList.add('hidden');
             
             statusPelanggan.innerText = 'Pelanggan Baru';
             statusPelanggan.className = 'text-xs font-bold px-2.5 py-1 bg-blue-100 text-blue-700 rounded-lg transition-colors';
@@ -433,6 +482,7 @@
             const itemOption = itemSelect.options[itemSelect.selectedIndex];
             const itemText = itemOption.text;
             const basePrice = parseFloat(itemOption.getAttribute('data-price'));
+            const satuan = itemOption.getAttribute('data-satuan');
 
             const pencucianOption = pencucianSelect.options[pencucianSelect.selectedIndex];
             const pencucianText = pencucianOption.text;
@@ -445,11 +495,9 @@
             const pengirimanText = pengirimanSelect.options[pengirimanSelect.selectedIndex].text;
             
             const qty = parseFloat(qtyInput.value) || 1;
-            const unit = unitSelect.value;
             
-            // Hitung total harga: item + pencucian + layanan
-            const totalHargaPerItem = basePrice + pencucianHarga + layananHarga;
-            const itemPrice = totalHargaPerItem * qty;
+            // Hitung total harga: (item × qty) + pencucian + layanan
+            const itemPrice = (basePrice * qty) + pencucianHarga + layananHarga;
             
             const itemId = Date.now().toString();
 
@@ -463,10 +511,12 @@
                 name: `${itemText} (${pencucianText})`,
                 layanan: layananText,
                 pengiriman: pengirimanText,
-                qty: `${qty} ${unit}`,
+                qty: `${qty} ${satuan}`,
                 qty_num: qty,
                 price: itemPrice,
-                unitPrice: totalHargaPerItem
+                unitPrice: basePrice,
+                pencucianHarga: pencucianHarga,
+                layananHarga: layananHarga
             });
 
             // Kosongkan seluruh Sesi 2 setelah item ditambah ke keranjang (kecuali pengiriman karena berlaku untuk 1 nota)
@@ -474,7 +524,7 @@
             pencucianSelect.value = "";
             layananSelect.value = "";
             qtyInput.value = 1;
-            unitSelect.value = "pcs";
+            satuanDisplay.innerText = '-';
 
             // Gambar ulang tampilan keranjang
             renderCart();
@@ -507,8 +557,12 @@
                         <div class="pl-3 text-xs text-gray-600 space-y-1.5 border-l-2 border-blue-200">
                             <p>Layanan: <span class="font-medium text-gray-800">${item.layanan}</span></p>
                             <p>Pengiriman: <span class="font-medium text-gray-800">${item.pengiriman}</span></p>
-                            <p>Qty: <span class="font-medium text-gray-800">${item.qty} <span class="text-gray-400 font-normal">(x ${formatRupiah(item.unitPrice)})</span></span></p>
-                            <p>Total Harga: <span class="font-bold text-blue-600">${formatRupiah(item.price)}</span></p>
+                            <div class="bg-white/50 p-2 rounded-lg mt-2 space-y-1 text-xs">
+                                <p>Item: <span class="font-medium">${item.qty_num} × ${formatRupiah(item.unitPrice)} = ${formatRupiah(item.unitPrice * item.qty_num)}</span></p>
+                                <p>Pencucian: <span class="font-medium">${formatRupiah(item.pencucianHarga)}</span></p>
+                                <p>Layanan: <span class="font-medium">${formatRupiah(item.layananHarga)}</span></p>
+                                <p class="pt-1 border-t border-gray-200 font-bold text-blue-600">Total: ${formatRupiah(item.price)}</p>
+                            </div>
                         </div>
                     `;
                     cartContainer.appendChild(itemDiv);
@@ -574,6 +628,20 @@
 
             if (!pelanggan_nama) {
                 alert('Silakan cari pelanggan atau masukkan nama pelanggan baru secara manual!');
+                return;
+            }
+
+            // Validasi nomor HP
+            if (!pelanggan_hp) {
+                alert('Nomor HP harus diisi!');
+                inputHp.focus();
+                inputHp.classList.add('border-red-500');
+                return;
+            }
+
+            if (!/^\d{11,12}$/.test(pelanggan_hp)) {
+                alert('Nomor HP harus 11-12 angka tanpa karakter khusus (Contoh: 08123456789)');
+                inputHp.focus();
                 return;
             }
 

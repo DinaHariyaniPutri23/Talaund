@@ -8,6 +8,7 @@
         'pengiriman' => 'Jenis Pengiriman',
         'item' => 'Item Laundry',
         'promo' => 'Promo & Diskon',
+        'satuan' => 'Satuan',
     ];
 
     $currentTabName = $tabNames[$tab] ?? 'Data Pelanggan';
@@ -81,6 +82,11 @@
                 </button>
             @elseif($tab == 'pengiriman')
                 <button onclick="openModalTambahPengiriman()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Tambah Data
+                </button>
+            @elseif($tab == 'satuan')
+                <button onclick="openModalTambahSatuan()" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-sm hover:shadow">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     Tambah Data
                 </button>
@@ -234,6 +240,7 @@
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">ID Item</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Item</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Harga</th>
+                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Satuan</th>
                         <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -244,16 +251,17 @@
                         <td class="py-4 px-6 font-medium text-gray-800 text-center border-x border-gray-200">ITM-{{ str_pad($i->id, 4, '0', STR_PAD_LEFT) }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->nama_item }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-blue-600">Rp {{ number_format($i->harga, 0, ',', '.') }}</td>
+                        <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-gray-700">{{ strtoupper($i->satuan) }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="openModalEditItem({{ $i->id }}, '{{ $i->nama_item }}', '{{ $i->harga }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="openModalEditItem({{ $i->id }}, '{{ $i->nama_item }}', '{{ $i->harga }}', '{{ $i->satuan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                                 <button onclick="openModalHapusItem({{ $i->id }}, '{{ $i->nama_item }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-gray-500">Belum ada data item laundry yang terdaftar.</td>
+                        <td colspan="6" class="py-8 text-center text-gray-500">Belum ada data item laundry yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -356,6 +364,45 @@
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $promos->currentPage() }} dari {{ $promos->lastPage() }}</p>
             <div class="flex items-center gap-1">
                 {{ $promos->appends(['tab' => 'promo'])->links('pagination::tailwind') }}
+            </div>
+        </div>
+
+        @elseif($tab == 'satuan')
+        <!-- Content: Satuan -->
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600">
+                <thead class="bg-gray-50/50">
+                    <tr class="text-gray-500">
+                        <th class="py-4 px-6 font-semibold w-16 text-center border-x border-gray-200">No</th>
+                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Satuan</th>
+                        <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @forelse($satuans as $index => $s)
+                    <tr class="hover:bg-gray-50/50 transition-colors group">
+                        <td class="py-4 px-6 text-gray-500 text-center border-x border-gray-200">{{ $satuans->firstItem() + $index }}</td>
+                        <td class="py-4 px-6 font-medium text-gray-800 text-center border-x border-gray-200">{{ $s->nama_satuan }}</td>
+                        <td class="py-4 px-6 text-center border-x border-gray-200">
+                            <div class="flex items-center justify-center gap-2">
+                                <button onclick="openModalEditSatuan({{ $s->id }}, '{{ $s->nama_satuan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="openModalHapusSatuan({{ $s->id }}, '{{ $s->nama_satuan }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3" class="py-8 text-center text-gray-500">Belum ada data satuan yang terdaftar.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <div class="p-4 border-t border-gray-50 flex items-center justify-between">
+            <p class="text-sm text-gray-500">Menampilkan halaman {{ $satuans->currentPage() }} dari {{ $satuans->lastPage() }}</p>
+            <div class="flex items-center gap-1">
+                {{ $satuans->appends(['tab' => 'satuan'])->links('pagination::tailwind') }}
             </div>
         </div>
         @endif
@@ -981,6 +1028,14 @@
                     <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="harga" value="{{ old('harga') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                     <p class="text-xs text-gray-400 mt-1">Biarkan 0 untuk item kiloan, isi harga untuk satuan (misal: Sepatu 35000).</p>
                 </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Satuan <span class="text-red-500">*</span></label>
+                    <select name="satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="" disabled selected>Pilih satuan...</option>
+                        <option value="pcs">PCS (Per Piece)</option>
+                        <option value="kg">KG (Per Kilogram)</option>
+                    </select>
+                </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                 <button type="button" onclick="closeModalTambahItem()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors">Batal</button>
@@ -1023,6 +1078,14 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
                     <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="edit_harga_item" name="harga" value="{{ old('harga') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Satuan <span class="text-red-500">*</span></label>
+                    <select id="edit_satuan_item" name="satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="" disabled>Pilih satuan...</option>
+                        <option value="pcs">PCS (Per Piece)</option>
+                        <option value="kg">KG (Per Kilogram)</option>
+                    </select>
                 </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
@@ -1068,7 +1131,7 @@
         document.getElementById('modalTambahItem').classList.remove('flex');
     }
 
-    function openModalEditItem(id, nama, harga) {
+    function openModalEditItem(id, nama, harga, satuan) {
         document.getElementById('modalEditItem').classList.remove('hidden');
         document.getElementById('modalEditItem').classList.add('flex');
         
@@ -1076,6 +1139,7 @@
         
         document.getElementById('edit_nama_item').value = nama;
         document.getElementById('edit_harga_item').value = harga;
+        document.getElementById('edit_satuan_item').value = satuan;
     }
 
     function closeModalEditItem() {
@@ -1262,6 +1326,143 @@
     function closeModalHapusPromo() {
         document.getElementById('modalHapusPromo').classList.add('hidden');
         document.getElementById('modalHapusPromo').classList.remove('flex');
+    }
+</script>
+@elseif($tab == 'satuan')
+<!-- MODAL TAMBAH SATUAN -->
+<div id="modalTambahSatuan" class="{{ session('error_modal_tambah_satuan') ? 'flex' : 'hidden' }} fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-xl font-semibold text-gray-800 font-outfit">Tambah Satuan Baru</h3>
+            <button type="button" onclick="closeModalTambahSatuan()" class="text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 rounded-lg p-1.5 transition-colors shadow-sm border border-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <form action="{{ route('super_admin.satuan.store') }}" method="POST">
+            @csrf
+            <div class="p-6 space-y-4">
+                @if(session('error_modal_tambah_satuan') && $errors->any())
+                    <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-2 border border-red-100 flex items-start gap-2">
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Satuan <span class="text-red-500">*</span></label>
+                    <input type="text" name="nama_satuan" value="{{ old('nama_satuan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors" placeholder="Contoh: kg, pcs, liter, dll">
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onclick="closeModalTambahSatuan()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors">Batal</button>
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-sm transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    Simpan Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDIT SATUAN -->
+<div id="modalEditSatuan" class="{{ session('error_modal_edit_satuan') ? 'flex' : 'hidden' }} fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+        <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-xl font-semibold text-gray-800 font-outfit">Edit Satuan</h3>
+            <button type="button" onclick="closeModalEditSatuan()" class="text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 rounded-lg p-1.5 transition-colors shadow-sm border border-gray-100">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <form id="formEditSatuan" action="{{ session('error_modal_edit_satuan') ? route('super_admin.satuan.update', session('error_modal_edit_satuan')) : '' }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="p-6 space-y-4">
+                @if(session('error_modal_edit_satuan') && $errors->any())
+                    <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-2 border border-red-100 flex items-start gap-2">
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <ul class="list-disc list-inside">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Satuan <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit_nama_satuan" name="nama_satuan" value="{{ old('nama_satuan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                </div>
+            </div>
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onclick="closeModalEditSatuan()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors">Batal</button>
+                <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-sm transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL HAPUS SATUAN -->
+<div id="modalHapusSatuan" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 backdrop-blur-sm p-4 transition-opacity">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full my-6">
+            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 6H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v15a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <h3 class="text-lg font-semibold text-center text-gray-800">Hapus Satuan?</h3>
+        <p class="text-center text-gray-600 text-sm mt-2 px-6">Anda yakin ingin menghapus satuan <strong id="hapus_nama_satuan"></strong>? Data yang dihapus tidak dapat dipulihkan.</p>
+        <form id="formHapusSatuan" method="POST" class="mt-6">
+            @csrf
+            @method('DELETE')
+            <div class="flex gap-3 px-6 py-4">
+                <button type="button" onclick="closeModalHapusSatuan()" class="px-6 py-3 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors w-1/2">Batal</button>
+                <button type="submit" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors w-1/2 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Ya, Hapus
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModalTambahSatuan() {
+        document.getElementById('modalTambahSatuan').classList.remove('hidden');
+        document.getElementById('modalTambahSatuan').classList.add('flex');
+    }
+    
+    function closeModalTambahSatuan() {
+        document.getElementById('modalTambahSatuan').classList.add('hidden');
+        document.getElementById('modalTambahSatuan').classList.remove('flex');
+    }
+
+    function openModalEditSatuan(id, nama) {
+        document.getElementById('modalEditSatuan').classList.remove('hidden');
+        document.getElementById('modalEditSatuan').classList.add('flex');
+        
+        document.getElementById('formEditSatuan').action = `/dashboard/super-admin/data-master/satuan/${id}`;
+        document.getElementById('edit_nama_satuan').value = nama;
+    }
+
+    function closeModalEditSatuan() {
+        document.getElementById('modalEditSatuan').classList.add('hidden');
+        document.getElementById('modalEditSatuan').classList.remove('flex');
+    }
+
+    function openModalHapusSatuan(id, nama) {
+        document.getElementById('modalHapusSatuan').classList.remove('hidden');
+        document.getElementById('modalHapusSatuan').classList.add('flex');
+        
+        document.getElementById('hapus_nama_satuan').textContent = nama;
+        document.getElementById('formHapusSatuan').action = `/dashboard/super-admin/data-master/satuan/${id}`;
+    }
+
+    function closeModalHapusSatuan() {
+        document.getElementById('modalHapusSatuan').classList.add('hidden');
+        document.getElementById('modalHapusSatuan').classList.remove('flex');
     }
 </script>
 @endif

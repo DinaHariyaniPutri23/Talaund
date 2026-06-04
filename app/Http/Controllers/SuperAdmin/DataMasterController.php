@@ -10,6 +10,7 @@ use App\Models\Pencucian;
 use App\Models\Pengiriman;
 use App\Models\ItemLaundry;
 use App\Models\Promo;
+use App\Models\MSatuan;
 
 class DataMasterController extends Controller
 {
@@ -30,6 +31,8 @@ class DataMasterController extends Controller
             $data['pengirimans'] = Pengiriman::orderBy('id', 'asc')->paginate(10);
         } elseif ($tab == 'promo') {
             $data['promos'] = Promo::orderBy('id', 'asc')->paginate(10);
+        } elseif ($tab == 'satuan') {
+            $data['satuans'] = MSatuan::orderBy('id', 'asc')->paginate(10);
         }
 
         return view('super_admin.data_master', array_merge(['tab' => $tab], $data));

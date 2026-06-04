@@ -14,9 +14,12 @@ class ItemLaundryMasterController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
+            'satuan' => 'required|string|in:pcs,kg',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
+            'satuan.required' => 'Satuan harus dipilih.',
+            'satuan.in' => 'Satuan harus pcs atau kg.',
         ]);
 
         if ($validator->fails()) {
@@ -29,6 +32,7 @@ class ItemLaundryMasterController extends Controller
         ItemLaundry::create([
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
+            'satuan' => $request->satuan,
         ]);
 
         return redirect()->back()->with('success', 'Item Laundry berhasil ditambahkan!');
@@ -41,9 +45,12 @@ class ItemLaundryMasterController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
+            'satuan' => 'required|string|in:pcs,kg',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
+            'satuan.required' => 'Satuan harus dipilih.',
+            'satuan.in' => 'Satuan harus pcs atau kg.',
         ]);
 
         if ($validator->fails()) {
@@ -56,6 +63,7 @@ class ItemLaundryMasterController extends Controller
         $item->update([
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
+            'satuan' => $request->satuan,
         ]);
 
         return redirect()->back()->with('success', 'Data Item Laundry berhasil diperbarui!');

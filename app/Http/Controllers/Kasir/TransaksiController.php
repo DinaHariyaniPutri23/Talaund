@@ -15,6 +15,7 @@ use App\Models\Promo;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use App\Models\Pembayaran;
+use App\Models\MSatuan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -90,7 +91,8 @@ class TransaksiController extends Controller
             'layanans' => Layanan::orderBy('nama_layanan', 'asc')->get(),
             'pencucians' => Pencucian::orderBy('nama_pencucian', 'asc')->get(),
             'pengirimans' => Pengiriman::orderBy('id', 'asc')->get(),
-            'promos' => Promo::orderBy('nama_promo', 'asc')->get()
+            'promos' => Promo::orderBy('nama_promo', 'asc')->get(),
+            'satuans' => MSatuan::orderBy('nama_satuan', 'asc')->get()
         ];
 
         return view('kasir.transaksi.create', $data);

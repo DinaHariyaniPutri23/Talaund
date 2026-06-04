@@ -135,6 +135,9 @@
                         <a href="{{ route('dashboard.super_admin.data_master') }}?tab=item" class="block py-[8px] {{ $isDataMasterActive && $activeTab == 'item' ? 'text-white font-medium' : 'text-gray-400 hover:text-white' }} no-underline text-[0.9rem] transition duration-300">Item Laundry</a>
                     </li>
                     <li class="mb-[5px]">
+                        <a href="{{ route('dashboard.super_admin.data_master') }}?tab=satuan" class="block py-[8px] {{ $isDataMasterActive && $activeTab == 'satuan' ? 'text-white font-medium' : 'text-gray-400 hover:text-white' }} no-underline text-[0.9rem] transition duration-300">Satuan</a>
+                    </li>
+                    <li class="mb-[5px]">
                         <a href="{{ route('dashboard.super_admin.data_master') }}?tab=promo" class="block py-[8px] {{ $isDataMasterActive && $activeTab == 'promo' ? 'text-white font-medium' : 'text-gray-400 hover:text-white' }} no-underline text-[0.9rem] transition duration-300">Promo</a>
                     </li>
                 </ul>
