@@ -14,7 +14,7 @@ class PencucianSeeder extends Seeder
     {
         $data = [
             ['nama_pencucian' => 'Cuci', 'harga' => 6000],
-            ['nama_pencucian' => 'Setrika', 'harga' => 4000],
+            ['nama_pencucian' => 'Setrika', 'harga' => 6000],
             ['nama_pencucian' => 'Cuci Setrika', 'harga' => 10000],
         ];
 

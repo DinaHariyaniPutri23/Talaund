@@ -13,17 +13,35 @@ class ItemLaundrySeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama_item' => 'Baju', 'harga' => 7000],
-            ['nama_item' => 'Celana', 'harga' => 8000],
-            ['nama_item' => 'Bad Cover', 'harga' => 20000],
-            ['nama_item' => 'Jas', 'harga' => 25000],
-            ['nama_item' => 'Sepatu', 'harga' => 30000],
+            [
+                'nama_item' => 'Baju dan Celana',
+                'harga' => 2000,
+                'satuan' => 'kg',
+            ],
+            [
+                'nama_item' => 'Bed Cover',
+                'harga' => 30000,
+                'satuan' => 'pcs',
+            ],
+            [
+                'nama_item' => 'Jas',
+                'harga' => 30000,
+                'satuan' => 'pcs',
+            ],
+            [
+                'nama_item' => 'Sepatu',
+                'harga' => 15000,
+                'satuan' => 'pcs',
+            ],
         ];
 
         foreach ($data as $item) {
-            ItemLaundry::firstOrCreate(
+            ItemLaundry::updateOrCreate(
                 ['nama_item' => $item['nama_item']],
-                ['harga' => $item['harga']]
+                [
+                    'harga' => $item['harga'],
+                    'satuan' => $item['satuan'],
+                ]
             );
         }
     }
