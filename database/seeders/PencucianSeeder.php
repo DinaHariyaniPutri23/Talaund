@@ -13,9 +13,9 @@ class PencucianSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama_pencucian' => 'Cuci', 'harga' => 6000],
-            ['nama_pencucian' => 'Setrika', 'harga' => 6000],
-            ['nama_pencucian' => 'Cuci Setrika', 'harga' => 10000],
+            ['nama_pencucian' => 'Cuci', 'harga' => 2000],
+            ['nama_pencucian' => 'Setrika', 'harga' => 2000],
+            ['nama_pencucian' => 'Cuci Setrika', 'harga' => 4000],
         ];
 
         foreach ($data as $pencucian) {

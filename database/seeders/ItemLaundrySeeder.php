@@ -19,8 +19,13 @@ class ItemLaundrySeeder extends Seeder
                 'satuan' => 'kg',
             ],
             [
-                'nama_item' => 'Bed Cover',
+                'nama_item' => 'Bed Cover Kecil',
                 'harga' => 30000,
+                'satuan' => 'pcs',
+            ],
+             [
+                'nama_item' => 'Bed Cover Besar',
+                'harga' => 40000,
                 'satuan' => 'pcs',
             ],
             [

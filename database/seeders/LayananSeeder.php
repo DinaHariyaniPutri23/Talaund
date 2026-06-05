@@ -13,8 +13,8 @@ class LayananSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama_layanan' => 'Express', 'harga_layanan' => 4000],
-            ['nama_layanan' => 'Reguler', 'harga_layanan' => 0],
+            ['nama_layanan' => 'Express', 'harga_layanan' => 6000],
+            ['nama_layanan' => 'Reguler', 'harga_layanan' => 2000],
         ];
 
         foreach ($data as $layanan) {
