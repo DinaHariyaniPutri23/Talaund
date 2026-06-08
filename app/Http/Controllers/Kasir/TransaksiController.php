@@ -173,7 +173,7 @@ class TransaksiController extends Controller
                     'item_id' => $item['item_id'] ?? null,
                     'layanan_id' => $item['layanan_id'] ?? null,
                     'pencucian_id' => $item['pencucian_id'] ?? null,
-                    'harga_unit' => $item['price'] ?? 0,
+                    'harga_unit' => $item['unitPrice'] ?? ($item['price'] ?? 0),
                     'total_berat' => $item['qty_num'] ?? 1,
                     'subtotal' => $item['price'] ?? 0,
                 ]);
@@ -312,7 +312,7 @@ class TransaksiController extends Controller
                     'item_id' => $item['item_id'] ?? null,
                     'layanan_id' => $item['layanan_id'] ?? null,
                     'pencucian_id' => $item['pencucian_id'] ?? null,
-                    'harga_unit' => $item['price'] ?? 0,
+                    'harga_unit' => $item['unitPrice'] ?? ($item['price'] ?? 0),
                     'total_berat' => $item['qty_num'] ?? 1,
                     'subtotal' => $item['price'] ?? 0,
                 ]);

@@ -63,7 +63,7 @@
                         <select id="layanan-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
                             <option value="" data-harga="0">-- Pilih Layanan --</option>
                             @foreach($layanans as $layanan)
-                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga }}">{{ $layanan->nama_layanan }}</option>
+                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga_layanan }}">{{ $layanan->nama_layanan }}</option>
                             @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -256,8 +256,10 @@
 
             const qty = parseFloat(qtyInput.value) || 1;
             const unit = unitSelect.value;
-            const basePriceToUse = basePrice > 0 ? basePrice : pencucianHarga;
-            const itemPrice = (basePriceToUse + layananHarga) * qty;
+            
+            // Hitung total harga: (Harga Dasar + Cuci + Layanan) × Qty
+            const unitPriceCalculated = basePrice + pencucianHarga + layananHarga;
+            const itemPrice = unitPriceCalculated * qty;
 
             cart.push({
                 id: Date.now().toString(),
@@ -270,7 +272,7 @@
                 qty: `${qty} ${unit}`,
                 qty_num: qty,
                 price: itemPrice,
-                unitPrice: basePriceToUse + layananHarga
+                unitPrice: unitPriceCalculated
             });
 
             itemSelect.value = '';

@@ -105,7 +105,7 @@
                         <select id="layanan-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
                             <option value="" data-harga="0">-- Pilih Layanan --</option>
                             @foreach($layanans as $layanan)
-                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga }}">{{ $layanan->nama_layanan }}</option>
+                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga_layanan }}">{{ $layanan->nama_layanan }}</option>
                             @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -496,8 +496,9 @@
             
             const qty = parseFloat(qtyInput.value) || 1;
             
-            // Hitung total harga: (item × qty) + pencucian + layanan
-            const itemPrice = (basePrice * qty) + pencucianHarga + layananHarga;
+            // Hitung total harga: (Harga Dasar + Cuci + Layanan) × Qty
+            const unitPriceCalculated = basePrice + pencucianHarga + layananHarga;
+            const itemPrice = unitPriceCalculated * qty;
             
             const itemId = Date.now().toString();
 
@@ -514,7 +515,7 @@
                 qty: `${qty} ${satuan}`,
                 qty_num: qty,
                 price: itemPrice,
-                unitPrice: basePrice,
+                unitPrice: unitPriceCalculated,
                 pencucianHarga: pencucianHarga,
                 layananHarga: layananHarga
             });
@@ -557,12 +558,8 @@
                         <div class="pl-3 text-xs text-gray-600 space-y-1.5 border-l-2 border-blue-200">
                             <p>Layanan: <span class="font-medium text-gray-800">${item.layanan}</span></p>
                             <p>Pengiriman: <span class="font-medium text-gray-800">${item.pengiriman}</span></p>
-                            <div class="bg-white/50 p-2 rounded-lg mt-2 space-y-1 text-xs">
-                                <p>Item: <span class="font-medium">${item.qty_num} × ${formatRupiah(item.unitPrice)} = ${formatRupiah(item.unitPrice * item.qty_num)}</span></p>
-                                <p>Pencucian: <span class="font-medium">${formatRupiah(item.pencucianHarga)}</span></p>
-                                <p>Layanan: <span class="font-medium">${formatRupiah(item.layananHarga)}</span></p>
-                                <p class="pt-1 border-t border-gray-200 font-bold text-blue-600">Total: ${formatRupiah(item.price)}</p>
-                            </div>
+                            <p>Qty: <span class="font-medium text-gray-800">${item.qty} <span class="text-gray-400 font-normal">(x ${formatRupiah(item.unitPrice)})</span></span></p>
+                            <p>Total Harga: <span class="font-bold text-blue-600">${formatRupiah(item.price)}</span></p>
                         </div>
                     `;
                     cartContainer.appendChild(itemDiv);
