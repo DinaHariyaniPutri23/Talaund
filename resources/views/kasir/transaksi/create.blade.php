@@ -68,13 +68,13 @@
             <div class="space-y-6">
                 <!-- 1. Pilih Item -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item (Layanan & Pencucian)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item</label>
                     <div class="relative">
                         <select id="item-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-price="0" data-nama="" data-satuan="" data-layanan="" data-pencucian="">-- Pilih Item --</option>
-                            @foreach($items as $item)
-                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}" data-satuan="{{ strtoupper($item->satuan) }}" data-layanan="{{ $item->id_layanan }}" data-pencucian="{{ $item->id_pencucian }}">
-                                    {{ $item->nama_item }} - {{ optional($item->pencucian)->nama_pencucian ?? '-' }} ({{ optional($item->layanan)->nama_layanan ?? '-' }}) - Rp {{ number_format($item->harga, 0, ',', '.') }}/{{ strtolower($item->satuan) }}
+                            <option value="" data-satuan="">-- Pilih Item --</option>
+                            @foreach($items->unique('nama_item') as $item)
+                                <option value="{{ $item->nama_item }}" data-satuan="{{ strtoupper($item->satuan) }}">
+                                    {{ $item->nama_item }}
                                 </option>
                             @endforeach
                         </select>
@@ -83,10 +83,42 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- 2. Jenis Pengiriman -->
+
+                <!-- 2. Jenis Pencucian -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Jenis Pengiriman</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Jenis Pencucian</label>
+                    <div class="relative">
+                        <select id="pencucian-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
+                            <option value="">-- Pilih Pencucian --</option>
+                            @foreach($pencucians as $pencucian)
+                                <option value="{{ $pencucian->id }}">{{ $pencucian->nama_pencucian }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Jenis Layanan -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">3. Jenis Layanan</label>
+                    <div class="relative">
+                        <select id="layanan-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
+                            <option value="">-- Pilih Layanan --</option>
+                            @foreach($layanans as $layanan)
+                                <option value="{{ $layanan->id }}">{{ $layanan->nama_layanan }}</option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 4. Jenis Pengiriman -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">4. Jenis Pengiriman</label>
                     <div class="relative">
                         <select id="pengiriman-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
                             <option value="">-- Pilih Pengiriman --</option>
@@ -100,9 +132,9 @@
                     </div>
                 </div>
                 
-                <!-- 3. Berat/Jumlah -->
+                <!-- 5. Berat/Jumlah -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">3. Berat / Jumlah</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">5. Berat / Jumlah</label>
                     <div class="flex flex-col sm:flex-row items-center gap-3">
                         <input id="qty-input" type="number" class="block w-full sm:w-24 pl-4 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-center" value="1" min="1" step="0.1">
                         
@@ -215,10 +247,14 @@
         const alamatPelangganDisplay = document.getElementById('alamat-pelanggan-display');
         
         const itemSelect = document.getElementById('item-select');
+        const pencucianSelect = document.getElementById('pencucian-select');
+        const layananSelect = document.getElementById('layanan-select');
         const pengirimanSelect = document.getElementById('pengiriman-select');
         const qtyInput = document.getElementById('qty-input');
         const satuanDisplay = document.getElementById('satuan-display');
         const btnTambah = document.getElementById('btn-tambah');
+        
+        const masterItems = @json($items);
         
         const cartContainer = document.getElementById('cart-container');
         const emptyCartMsg = document.getElementById('empty-cart-msg');
@@ -442,17 +478,32 @@
 
         // Add to Cart Logic
         btnTambah.addEventListener('click', function() {
-            if (!itemSelect.value) {
-                alert('Pilih item terlebih dahulu!');
+            if (!itemSelect.value || !pencucianSelect.value || !layananSelect.value) {
+                alert('Pilih Item, Jenis Pencucian, dan Jenis Layanan terlebih dahulu!');
                 return;
             }
 
-            const itemOption = itemSelect.options[itemSelect.selectedIndex];
-            const itemText = itemOption.text;
-            const basePrice = parseFloat(itemOption.getAttribute('data-price'));
-            const satuan = itemOption.getAttribute('data-satuan');
-            const layananId = itemOption.getAttribute('data-layanan');
-            const pencucianId = itemOption.getAttribute('data-pencucian');
+            const selectedNamaItem = itemSelect.value;
+            const selectedPencucianId = pencucianSelect.value;
+            const selectedLayananId = layananSelect.value;
+
+            // Find matching item in masterItems
+            const foundItem = masterItems.find(i => 
+                i.nama_item === selectedNamaItem && 
+                i.id_pencucian == selectedPencucianId && 
+                i.id_layanan == selectedLayananId
+            );
+
+            if (!foundItem) {
+                alert('Kombinasi layanan ini tidak tersedia untuk item terpilih! (Cek kembali harga master)');
+                return;
+            }
+
+            const itemText = foundItem.nama_item;
+            const pencucianText = pencucianSelect.options[pencucianSelect.selectedIndex].text;
+            const layananText = layananSelect.options[layananSelect.selectedIndex].text;
+            const basePrice = parseFloat(foundItem.harga);
+            const satuan = foundItem.satuan.toUpperCase();
             
             const pengirimanText = pengirimanSelect.options[pengirimanSelect.selectedIndex].text;
             
@@ -467,12 +518,12 @@
             // Masukkan ke array keranjang dengan struktur data mentah untuk dikirim ke backend
             cart.push({
                 id: itemId, // Temporary id
-                item_id: itemSelect.value,
-                pencucian_id: pencucianId,
-                layanan_id: layananId,
+                item_id: foundItem.id,
+                pencucian_id: selectedPencucianId,
+                layanan_id: selectedLayananId,
                 // Label string hanya untuk UI
-                name: itemText,
-                layanan: "-",
+                name: `${itemText} (${pencucianText})`,
+                layanan: layananText,
                 pengiriman: pengirimanText,
                 qty: `${qty} ${satuan}`,
                 qty_num: qty,
@@ -484,6 +535,8 @@
 
             // Kosongkan seluruh Sesi 2 setelah item ditambah ke keranjang (kecuali pengiriman karena berlaku untuk 1 nota)
             itemSelect.value = "";
+            pencucianSelect.value = "";
+            layananSelect.value = "";
             qtyInput.value = 1;
             satuanDisplay.innerText = '-';
 
