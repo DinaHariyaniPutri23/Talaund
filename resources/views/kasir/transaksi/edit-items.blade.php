@@ -28,12 +28,14 @@
 
             <div class="space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item (Layanan & Pencucian)</label>
                     <div class="relative">
                         <select id="item-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-price="0" data-nama="">-- Pilih Item --</option>
+                            <option value="" data-price="0" data-nama="" data-satuan="" data-layanan="" data-pencucian="">-- Pilih Item --</option>
                             @foreach($items as $item)
-                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}">{{ $item->nama_item }}</option>
+                                <option value="{{ $item->id }}" data-price="{{ $item->harga }}" data-nama="{{ $item->nama_item }}" data-satuan="{{ strtoupper($item->satuan) }}" data-layanan="{{ $item->id_layanan }}" data-pencucian="{{ $item->id_pencucian }}">
+                                    {{ $item->nama_item }} - {{ optional($item->pencucian)->nama_pencucian ?? '-' }} ({{ optional($item->layanan)->nama_layanan ?? '-' }}) - Rp {{ number_format($item->harga, 0, ',', '.') }}/{{ strtolower($item->satuan) }}
+                                </option>
                             @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
@@ -43,39 +45,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Jenis Pencucian</label>
-                    <div class="relative">
-                        <select id="pencucian-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-harga="0">-- Pilih Pencucian --</option>
-                            @foreach($pencucians as $pencucian)
-                                <option value="{{ $pencucian->id }}" data-harga="{{ $pencucian->harga }}">{{ $pencucian->nama_pencucian }}</option>
-                            @endforeach
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">3. Jenis Layanan</label>
-                    <div class="relative">
-                        <select id="layanan-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                            <option value="" data-harga="0">-- Pilih Layanan --</option>
-                            @foreach($layanans as $layanan)
-                                <option value="{{ $layanan->id }}" data-harga="{{ $layanan->harga_layanan }}">{{ $layanan->nama_layanan }}</option>
-                            @endforeach
-                        </select>
-                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">4. Berat / Jumlah</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">2. Berat / Jumlah</label>
                     <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <input id="qty-input" type="number" class="block w-full sm:w-24 pl-4 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-center" value="1" min="1">
+                        <input id="qty-input" type="number" class="block w-full sm:w-24 pl-4 pr-3 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-center" value="1" min="1" step="0.1">
 
                         <div class="relative w-full sm:w-32">
                             <select id="unit-select" class="block w-full pl-4 pr-10 py-3 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
@@ -175,8 +147,6 @@
         let subtotal = 0;
 
         const itemSelect = document.getElementById('item-select');
-        const pencucianSelect = document.getElementById('pencucian-select');
-        const layananSelect = document.getElementById('layanan-select');
         const qtyInput = document.getElementById('qty-input');
         const unitSelect = document.getElementById('unit-select');
         const btnTambah = document.getElementById('btn-tambah');
@@ -245,29 +215,23 @@
             const itemOption = itemSelect.options[itemSelect.selectedIndex];
             const itemText = itemOption.text;
             const basePrice = parseFloat(itemOption.getAttribute('data-price')) || 0;
-
-            const pencucianOption = pencucianSelect.options[pencucianSelect.selectedIndex];
-            const pencucianText = pencucianOption.text;
-            const pencucianHarga = parseFloat(pencucianOption.getAttribute('data-harga')) || 0;
-
-            const layananOption = layananSelect.options[layananSelect.selectedIndex];
-            const layananText = layananOption.text;
-            const layananHarga = parseFloat(layananOption.getAttribute('data-harga')) || 0;
+            const layananId = itemOption.getAttribute('data-layanan');
+            const pencucianId = itemOption.getAttribute('data-pencucian');
 
             const qty = parseFloat(qtyInput.value) || 1;
             const unit = unitSelect.value;
             
-            // Hitung total harga: (Harga Dasar + Cuci + Layanan) × Qty
-            const unitPriceCalculated = basePrice + pencucianHarga + layananHarga;
+            // Hitung total harga
+            const unitPriceCalculated = basePrice;
             const itemPrice = unitPriceCalculated * qty;
 
             cart.push({
                 id: Date.now().toString(),
                 item_id: itemSelect.value,
-                pencucian_id: pencucianSelect.value,
-                layanan_id: layananSelect.value,
-                name: `${itemText} (${pencucianText})`,
-                layanan: layananText,
+                pencucian_id: pencucianId,
+                layanan_id: layananId,
+                name: itemText,
+                layanan: "-",
                 pengiriman: '{{ optional($transaksi->pengiriman)->pilihan_pengiriman ?? '-' }}',
                 qty: `${qty} ${unit}`,
                 qty_num: qty,
@@ -276,8 +240,6 @@
             });
 
             itemSelect.value = '';
-            pencucianSelect.value = '';
-            layananSelect.value = '';
             qtyInput.value = 1;
             unitSelect.value = 'pcs';
             renderCart();

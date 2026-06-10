@@ -87,7 +87,7 @@ class TransaksiController extends Controller
     {
         $data = [
             'pelanggans' => Pelanggan::orderBy('nama_lengkap', 'asc')->get(),
-            'items' => ItemLaundry::orderBy('nama_item', 'asc')->get(),
+            'items' => ItemLaundry::with(['layanan', 'pencucian'])->orderBy('nama_item', 'asc')->get(),
             'layanans' => Layanan::orderBy('nama_layanan', 'asc')->get(),
             'pencucians' => Pencucian::orderBy('nama_pencucian', 'asc')->get(),
             'pengirimans' => Pengiriman::orderBy('id', 'asc')->get(),
@@ -108,7 +108,7 @@ class TransaksiController extends Controller
 
         $data = [
             'transaksi' => $transaksi,
-            'items' => ItemLaundry::orderBy('nama_item', 'asc')->get(),
+            'items' => ItemLaundry::with(['layanan', 'pencucian'])->orderBy('nama_item', 'asc')->get(),
             'layanans' => Layanan::orderBy('nama_layanan', 'asc')->get(),
             'pencucians' => Pencucian::orderBy('nama_pencucian', 'asc')->get(),
             'pengirimans' => Pengiriman::orderBy('id', 'asc')->get(),
