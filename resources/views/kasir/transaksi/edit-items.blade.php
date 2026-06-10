@@ -194,6 +194,46 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(number);
         };
 
+        const originalPencucianOptions = Array.from(pencucianSelect.options);
+        const originalLayananOptions = Array.from(layananSelect.options);
+
+        itemSelect.addEventListener('change', function() {
+            const selectedNamaItem = this.value;
+            
+            if (!selectedNamaItem) {
+                pencucianSelect.innerHTML = '';
+                originalPencucianOptions.forEach(opt => pencucianSelect.appendChild(opt.cloneNode(true)));
+                layananSelect.innerHTML = '';
+                originalLayananOptions.forEach(opt => layananSelect.appendChild(opt.cloneNode(true)));
+                return;
+            }
+
+            const availableItems = masterItems.filter(i => i.nama_item === selectedNamaItem);
+            const availablePencucianIds = [...new Set(availableItems.map(i => String(i.id_pencucian)))];
+            const availableLayananIds = [...new Set(availableItems.map(i => String(i.id_layanan)))];
+
+            pencucianSelect.innerHTML = '';
+            originalPencucianOptions.forEach(opt => {
+                if (opt.value === "" || availablePencucianIds.includes(opt.value)) {
+                    pencucianSelect.appendChild(opt.cloneNode(true));
+                }
+            });
+
+            layananSelect.innerHTML = '';
+            originalLayananOptions.forEach(opt => {
+                if (opt.value === "" || availableLayananIds.includes(opt.value)) {
+                    layananSelect.appendChild(opt.cloneNode(true));
+                }
+            });
+            
+            if(pencucianSelect.options.length === 2) pencucianSelect.selectedIndex = 1;
+            if(layananSelect.options.length === 2) layananSelect.selectedIndex = 1;
+
+            if(availableItems.length > 0 && availableItems[0].satuan) {
+                unitSelect.value = availableItems[0].satuan.toLowerCase();
+            }
+        });
+
         function renderCart() {
             cartContainer.innerHTML = '';
 

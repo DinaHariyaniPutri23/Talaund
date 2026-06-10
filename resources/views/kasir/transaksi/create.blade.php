@@ -429,11 +429,51 @@
             }
         });
 
-        // Update satuan display saat item dipilih
+        const originalPencucianOptions = Array.from(pencucianSelect.options);
+        const originalLayananOptions = Array.from(layananSelect.options);
+
+        // Update dropdown pencucian, layanan, dan satuan saat item dipilih
         itemSelect.addEventListener('change', function() {
+            const selectedNamaItem = this.value;
             const selectedOption = this.options[this.selectedIndex];
             const satuan = selectedOption.getAttribute('data-satuan') || '-';
             satuanDisplay.innerText = satuan;
+            
+            if (!selectedNamaItem) {
+                // Restore all if empty
+                pencucianSelect.innerHTML = '';
+                originalPencucianOptions.forEach(opt => pencucianSelect.appendChild(opt.cloneNode(true)));
+                layananSelect.innerHTML = '';
+                originalLayananOptions.forEach(opt => layananSelect.appendChild(opt.cloneNode(true)));
+                return;
+            }
+
+            // Filter masterItems based on selected item
+            const availableItems = masterItems.filter(i => i.nama_item === selectedNamaItem);
+            
+            // Get unique available id_pencucian and id_layanan
+            const availablePencucianIds = [...new Set(availableItems.map(i => String(i.id_pencucian)))];
+            const availableLayananIds = [...new Set(availableItems.map(i => String(i.id_layanan)))];
+
+            // Reset pencucianSelect
+            pencucianSelect.innerHTML = '';
+            originalPencucianOptions.forEach(opt => {
+                if (opt.value === "" || availablePencucianIds.includes(opt.value)) {
+                    pencucianSelect.appendChild(opt.cloneNode(true));
+                }
+            });
+
+            // Reset layananSelect
+            layananSelect.innerHTML = '';
+            originalLayananOptions.forEach(opt => {
+                if (opt.value === "" || availableLayananIds.includes(opt.value)) {
+                    layananSelect.appendChild(opt.cloneNode(true));
+                }
+            });
+            
+            // Auto-select if only one valid option exists (besides empty)
+            if(pencucianSelect.options.length === 2) pencucianSelect.selectedIndex = 1;
+            if(layananSelect.options.length === 2) layananSelect.selectedIndex = 1;
         });
 
         // Hide dropdown saat klik di luar
