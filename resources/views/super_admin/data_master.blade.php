@@ -153,7 +153,6 @@
                         <th class="py-4 px-6 font-semibold w-16 text-center border-x border-gray-200">No</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">ID Pencucian</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Pencucian</th>
-                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Harga</th>
                         <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -163,17 +162,16 @@
                         <td class="py-4 px-6 text-gray-500 text-center border-x border-gray-200">{{ $pencucians->firstItem() + $index }}</td>
                         <td class="py-4 px-6 font-medium text-gray-800 text-center border-x border-gray-200">CUC-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $p->nama_pencucian }}</td>
-                        <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-blue-600">Rp {{ number_format($p->harga, 0, ',', '.') }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="openModalEditPencucian({{ $p->id }}, '{{ $p->nama_pencucian }}', '{{ $p->harga }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="openModalEditPencucian({{ $p->id }}, '{{ $p->nama_pencucian }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                                 <button onclick="openModalHapusPencucian({{ $p->id }}, '{{ $p->nama_pencucian }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-gray-500">Belum ada data jenis pencucian yang terdaftar.</td>
+                        <td colspan="4" class="py-8 text-center text-gray-500">Belum ada data jenis pencucian yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -196,7 +194,6 @@
                         <th class="py-4 px-6 font-semibold w-16 text-center border-x border-gray-200">No</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">ID Layanan</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Layanan</th>
-                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Harga Layanan</th>
                         <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -206,17 +203,16 @@
                         <td class="py-4 px-6 text-gray-500 text-center border-x border-gray-200">{{ $layanans->firstItem() + $index }}</td>
                         <td class="py-4 px-6 font-medium text-gray-800 text-center border-x border-gray-200">LYN-{{ str_pad($l->id, 4, '0', STR_PAD_LEFT) }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $l->nama_layanan }}</td>
-                        <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-blue-600">Rp {{ number_format($l->harga_layanan, 0, ',', '.') }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="openModalEditLayanan({{ $l->id }}, '{{ $l->nama_layanan }}', '{{ $l->harga_layanan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="openModalEditLayanan({{ $l->id }}, '{{ $l->nama_layanan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                                 <button onclick="openModalHapusLayanan({{ $l->id }}, '{{ $l->nama_layanan }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-8 text-center text-gray-500">Belum ada data jenis layanan yang terdaftar.</td>
+                        <td colspan="4" class="py-8 text-center text-gray-500">Belum ada data jenis layanan yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -241,6 +237,8 @@
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Item</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Harga</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Satuan</th>
+                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Layanan</th>
+                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Jenis Pencucian</th>
                         <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -252,6 +250,8 @@
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->nama_item }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-blue-600">Rp {{ number_format($i->harga, 0, ',', '.') }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-gray-700">{{ strtoupper($i->satuan) }}</td>
+                        <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->layanan?->nama_layanan ?? '-' }}</td>
+                        <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->pencucian?->nama_pencucian ?? '-' }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
                                 <button onclick="openModalEditItem({{ $i->id }}, '{{ $i->nama_item }}', '{{ $i->harga }}', '{{ $i->satuan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
@@ -261,7 +261,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-gray-500">Belum ada data item laundry yang terdaftar.</td>
+                        <td colspan="8" class="py-8 text-center text-gray-500">Belum ada data item laundry yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -594,10 +594,6 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Layanan <span class="text-red-500">*</span></label>
                     <input type="text" name="nama_layanan" value="{{ old('nama_layanan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga Layanan (Rp) <span class="text-red-500">*</span></label>
-                    <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="harga_layanan" value="{{ old('harga_layanan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-                </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                 <button type="button" onclick="closeModalTambahLayanan()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors">Batal</button>
@@ -636,10 +632,6 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Layanan <span class="text-red-500">*</span></label>
                     <input type="text" id="edit_nama_layanan" name="nama_layanan" value="{{ old('nama_layanan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga Layanan (Rp) <span class="text-red-500">*</span></label>
-                    <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="edit_harga_layanan" name="harga_layanan" value="{{ old('harga_layanan') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                 </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
@@ -685,14 +677,13 @@
         document.getElementById('modalTambahLayanan').classList.remove('flex');
     }
 
-    function openModalEditLayanan(id, nama, harga) {
+    function openModalEditLayanan(id, nama) {
         document.getElementById('modalEditLayanan').classList.remove('hidden');
         document.getElementById('modalEditLayanan').classList.add('flex');
         
         document.getElementById('formEditLayanan').action = `/dashboard/super-admin/data-master/layanan/${id}`;
         
         document.getElementById('edit_nama_layanan').value = nama;
-        document.getElementById('edit_harga_layanan').value = harga;
     }
 
     function closeModalEditLayanan() {
@@ -740,10 +731,6 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pencucian <span class="text-red-500">*</span></label>
                     <input type="text" name="nama_pencucian" value="{{ old('nama_pencucian') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                    <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="harga" value="{{ old('harga') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-                </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                 <button type="button" onclick="closeModalTambahPencucian()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl font-medium transition-colors">Batal</button>
@@ -782,10 +769,6 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Pencucian <span class="text-red-500">*</span></label>
                     <input type="text" id="edit_nama_pencucian" name="nama_pencucian" value="{{ old('nama_pencucian') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
-                    <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" id="edit_harga_pencucian" name="harga" value="{{ old('harga') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                 </div>
             </div>
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
@@ -831,14 +814,13 @@
         document.getElementById('modalTambahPencucian').classList.remove('flex');
     }
 
-    function openModalEditPencucian(id, nama, harga) {
+    function openModalEditPencucian(id, nama) {
         document.getElementById('modalEditPencucian').classList.remove('hidden');
         document.getElementById('modalEditPencucian').classList.add('flex');
         
         document.getElementById('formEditPencucian').action = `/dashboard/super-admin/data-master/pencucian/${id}`;
         
         document.getElementById('edit_nama_pencucian').value = nama;
-        document.getElementById('edit_harga_pencucian').value = harga;
     }
 
     function closeModalEditPencucian() {
@@ -1024,6 +1006,24 @@
                     <input type="text" name="nama_item" value="{{ old('nama_item') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Layanan</label>
+                    <select name="id_layanan" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="">Pilih layanan (opsional)...</option>
+                        @foreach($layanans_list as $layanan)
+                            <option value="{{ $layanan->id }}">{{ $layanan->nama_layanan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pencucian</label>
+                    <select name="id_pencucian" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="">Pilih jenis pencucian (opsional)...</option>
+                        @foreach($pencucians_list as $pencucian)
+                            <option value="{{ $pencucian->id }}">{{ $pencucian->nama_pencucian }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
                     <input type="text" inputmode="numeric" oninput="this.value = this.value.replace(/[^0-9]/g, '')" name="harga" value="{{ old('harga') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                     <p class="text-xs text-gray-400 mt-1">Biarkan 0 untuk item kiloan, isi harga untuk satuan (misal: Sepatu 35000).</p>
@@ -1074,6 +1074,24 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nama Item <span class="text-red-500">*</span></label>
                     <input type="text" id="edit_nama_item" name="nama_item" value="{{ old('nama_item') }}" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Layanan</label>
+                    <select id="edit_id_layanan" name="id_layanan" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="">Pilih layanan (opsional)...</option>
+                        @foreach($layanans_list as $layanan)
+                            <option value="{{ $layanan->id }}">{{ $layanan->nama_layanan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pencucian</label>
+                    <select id="edit_id_pencucian" name="id_pencucian" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                        <option value="">Pilih jenis pencucian (opsional)...</option>
+                        @foreach($pencucians_list as $pencucian)
+                            <option value="{{ $pencucian->id }}">{{ $pencucian->nama_pencucian }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>

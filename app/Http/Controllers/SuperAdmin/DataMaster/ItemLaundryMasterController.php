@@ -15,11 +15,15 @@ class ItemLaundryMasterController extends Controller
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
             'satuan' => 'required|string|in:pcs,kg',
+            'id_layanan' => 'nullable|exists:layanan,id',
+            'id_pencucian' => 'nullable|exists:pencucian,id',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
             'satuan.required' => 'Satuan harus dipilih.',
             'satuan.in' => 'Satuan harus pcs atau kg.',
+            'id_layanan.exists' => 'Layanan tidak ditemukan.',
+            'id_pencucian.exists' => 'Jenis pencucian tidak ditemukan.',
         ]);
 
         if ($validator->fails()) {
@@ -33,6 +37,8 @@ class ItemLaundryMasterController extends Controller
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
             'satuan' => $request->satuan,
+            'id_layanan' => $request->id_layanan,
+            'id_pencucian' => $request->id_pencucian,
         ]);
 
         return redirect()->back()->with('success', 'Item Laundry berhasil ditambahkan!');
@@ -46,11 +52,15 @@ class ItemLaundryMasterController extends Controller
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
             'satuan' => 'required|string|in:pcs,kg',
+            'id_layanan' => 'nullable|exists:layanan,id',
+            'id_pencucian' => 'nullable|exists:pencucian,id',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
             'satuan.required' => 'Satuan harus dipilih.',
             'satuan.in' => 'Satuan harus pcs atau kg.',
+            'id_layanan.exists' => 'Layanan tidak ditemukan.',
+            'id_pencucian.exists' => 'Jenis pencucian tidak ditemukan.',
         ]);
 
         if ($validator->fails()) {
@@ -64,6 +74,8 @@ class ItemLaundryMasterController extends Controller
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
             'satuan' => $request->satuan,
+            'id_layanan' => $request->id_layanan,
+            'id_pencucian' => $request->id_pencucian,
         ]);
 
         return redirect()->back()->with('success', 'Data Item Laundry berhasil diperbarui!');

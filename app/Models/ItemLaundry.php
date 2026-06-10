@@ -13,5 +13,19 @@ class ItemLaundry extends Model
         'nama_item',
         'harga',
         'satuan',
+        'id_layanan',
+        'id_pencucian',
     ];
+
+    // Relasi dengan Layanan
+    public function layanan()
+    {
+        return $this->belongsTo(Layanan::class, 'id_layanan');
+    }
+
+    // Relasi dengan Pencucian
+    public function pencucian()
+    {
+        return $this->belongsTo(Pencucian::class, 'id_pencucian');
+    }
 }

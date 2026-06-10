@@ -18,13 +18,21 @@ class DataMasterController extends Controller
     {
         $tab = $request->query('tab', 'pelanggan');
         
-        $data = [];
+        // Data yang selalu di-load
+        $allLayanans = Layanan::orderBy('id', 'asc')->get();
+        $allPencucians = Pencucian::orderBy('id', 'asc')->get();
+        
+        $data = [
+            'layanans_list' => $allLayanans,
+            'pencucians_list' => $allPencucians,
+        ];
+        
         if ($tab == 'pelanggan') {
             $data['pelanggans'] = Pelanggan::orderBy('id_pelanggan', 'asc')->paginate(10);
         } elseif ($tab == 'layanan') {
             $data['layanans'] = Layanan::orderBy('id', 'asc')->paginate(10);
         } elseif ($tab == 'item') {
-            $data['items'] = ItemLaundry::orderBy('id', 'asc')->paginate(10);
+            $data['items'] = ItemLaundry::with('layanan', 'pencucian')->orderBy('id', 'asc')->paginate(10);
         } elseif ($tab == 'pencucian') {
             $data['pencucians'] = Pencucian::orderBy('id', 'asc')->paginate(10);
         } elseif ($tab == 'pengiriman') {
