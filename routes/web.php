@@ -92,13 +92,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/kasir/transaksi', [KasirTransaksiController::class, 'index'])->name('dashboard.kasir.transaksi');
     Route::get('/dashboard/kasir/transaksi/create', [KasirTransaksiController::class, 'create'])->name('dashboard.kasir.transaksi.create');
-    Route::get('/dashboard/kasir/transaksi/{id}/edit-items', [KasirTransaksiController::class, 'editItemsPage'])->name('dashboard.kasir.transaksi.editItemsPage');
+
     Route::post('/dashboard/kasir/transaksi/store', [KasirTransaksiController::class, 'store'])->name('dashboard.kasir.transaksi.store');
     Route::get('/dashboard/kasir/transaksi/struk/{id}', [KasirTransaksiController::class, 'struk'])->name('dashboard.kasir.struk');
     Route::post('/dashboard/kasir/transaksi/{id}/lunasi', [KasirTransaksiController::class, 'lunasi'])->name('dashboard.kasir.transaksi.lunasi');
     Route::post('/dashboard/kasir/transaksi/{id}/update-pembayaran', [KasirTransaksiController::class, 'updatePembayaran'])->name('dashboard.kasir.transaksi.updatePembayaran');
     Route::post('/dashboard/kasir/transaksi/{id}/void', [KasirTransaksiController::class, 'voidTransaksi'])->name('dashboard.kasir.transaksi.void');
-    Route::post('/dashboard/kasir/transaksi/{id}/edit-items', [KasirTransaksiController::class, 'editItems'])->name('dashboard.kasir.transaksi.editItems');
+
 
     Route::get('/dashboard/kasir/riwayat', [KasirRiwayatController::class, 'index'])->name('dashboard.kasir.riwayat');
 

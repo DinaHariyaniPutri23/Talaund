@@ -98,25 +98,7 @@ class TransaksiController extends Controller
         return view('kasir.transaksi.create', $data);
     }
 
-    public function editItemsPage($id)
-    {
-        $transaksi = Transaksi::with(['pelanggan', 'detailTransaksi.itemLaundry', 'detailTransaksi.layanan', 'detailTransaksi.pencucian', 'pengiriman', 'pembayaran'])->findOrFail($id);
 
-        if ($transaksi->status_transaksi !== 'pending') {
-            return redirect()->route('dashboard.kasir.transaksi')->with('success', 'Item hanya bisa diedit untuk transaksi yang masih pending.');
-        }
-
-        $data = [
-            'transaksi' => $transaksi,
-            'items' => ItemLaundry::with(['layanan', 'pencucian'])->orderBy('nama_item', 'asc')->get(),
-            'layanans' => Layanan::orderBy('nama_layanan', 'asc')->get(),
-            'pencucians' => Pencucian::orderBy('nama_pencucian', 'asc')->get(),
-            'pengirimans' => Pengiriman::orderBy('id', 'asc')->get(),
-            'promos' => Promo::orderBy('nama_promo', 'asc')->get(),
-        ];
-
-        return view('kasir.transaksi.edit-items', $data);
-    }
 
     public function store(Request $request)
     {
@@ -282,58 +264,5 @@ class TransaksiController extends Controller
         ]);
     }
 
-    // Method untuk edit items (hanya untuk PENDING)
-    public function editItems(Request $request, $id)
-    {
-        $transaksi = Transaksi::findOrFail($id);
 
-        // Hanya bisa edit items jika PENDING
-        if ($transaksi->status_transaksi !== 'pending') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Hanya bisa edit items untuk transaksi yang masih PENDING!'
-            ], 422);
-        }
-
-        $request->validate([
-            'cart' => 'required|array|min:1',
-            'total' => 'required|numeric'
-        ]);
-
-        DB::beginTransaction();
-        try {
-            // Hapus detail transaksi lama
-            DetailTransaksi::where('transaksi_id', $id)->delete();
-
-            // Insert detail transaksi baru
-            foreach ($request->cart as $item) {
-                DetailTransaksi::create([
-                    'transaksi_id' => $id,
-                    'item_id' => $item['item_id'] ?? null,
-                    'layanan_id' => $item['layanan_id'] ?? null,
-                    'pencucian_id' => $item['pencucian_id'] ?? null,
-                    'harga_unit' => $item['unitPrice'] ?? ($item['price'] ?? 0),
-                    'total_berat' => $item['qty_num'] ?? 1,
-                    'subtotal' => $item['price'] ?? 0,
-                ]);
-            }
-
-            // Update total transaksi
-            $transaksi->update(['total_transaksi' => $request->total]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Items berhasil diupdate!',
-                'redirect_url' => route('dashboard.kasir.struk', $id)
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengupdate items: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 }
