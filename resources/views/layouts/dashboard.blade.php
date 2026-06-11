@@ -166,9 +166,9 @@
         </ul>
 
         <div class="p-[20px]">
-            <form action="{{ route('logout') }}" method="POST" class="w-full">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="w-full">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-[15px] bg-transparent border-none text-white text-[1rem] cursor-pointer font-sans py-[12px] px-[5px] hover:text-red-300 transition duration-300">
+                <button type="button" onclick="confirmLogout()" class="w-full flex items-center gap-[15px] bg-transparent border-none text-white text-[1rem] cursor-pointer font-sans py-[12px] px-[5px] hover:text-red-300 transition duration-300">
                     <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     Logout
                 </button>
@@ -201,6 +201,34 @@
         </div>
     </main>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Keluar Aplikasi?',
+                text: "Sesi Anda akan diakhiri dan Anda harus login kembali.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                heightAuto: false,
+                customClass: {
+                    popup: 'rounded-[20px] shadow-2xl border border-gray-100',
+                    title: 'text-[1.4rem] font-bold text-gray-800 font-outfit mb-1',
+                    htmlContainer: 'text-gray-500 text-[0.95rem] font-sans',
+                    confirmButton: 'bg-red-500 hover:bg-red-600 text-white font-semibold py-[10px] px-[24px] rounded-xl transition-all duration-300 shadow-lg shadow-red-500/30',
+                    cancelButton: 'bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-[10px] px-[24px] rounded-xl transition-all duration-300 mr-3'
+                },
+                buttonsStyling: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            })
+        }
+    </script>
     @stack('scripts')
 </body>
 </html>
