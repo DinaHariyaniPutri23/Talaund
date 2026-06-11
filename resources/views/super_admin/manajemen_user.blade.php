@@ -59,7 +59,6 @@
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Nama Lengkap</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Email</th>
                         <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Peran</th>
-                        <th class="py-4 px-6 font-semibold text-center border-x border-gray-200">Status</th>
                         <th class="py-4 px-6 font-semibold w-36 text-center border-x border-gray-200">Aksi</th>
                     </tr>
                 </thead>
@@ -79,9 +78,6 @@
                             @endif
                         </td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
-                            <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500"></span> Aktif</span>
-                        </td>
-                        <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
                                 <button onclick="openModalEdit({{ $u->id }}, '{{ $u->nama }}', '{{ $u->email }}', '{{ $u->peran }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                                 <button onclick="openModalHapus({{ $u->id }}, '{{ $u->nama }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
@@ -90,7 +86,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-8 text-center text-gray-500">Belum ada data pengguna yang terdaftar.</td>
+                        <td colspan="5" class="py-8 text-center text-gray-500">Belum ada data pengguna yang terdaftar.</td>
                     </tr>
                     @endforelse
                 </tbody>
