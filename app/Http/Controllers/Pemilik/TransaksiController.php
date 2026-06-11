@@ -12,6 +12,8 @@ class TransaksiController extends Controller
     {
         $search = $request->input('search');
         $status = $request->input('status');
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
 
         $query = Transaksi::with(['pelanggan', 'pengguna', 'pembayaran']);
 
@@ -36,8 +38,16 @@ class TransaksiController extends Controller
             }
         }
 
+        if ($start_date) {
+            $query->whereDate('tanggal_transaksi', '>=', $start_date);
+        }
+
+        if ($end_date) {
+            $query->whereDate('tanggal_transaksi', '<=', $end_date);
+        }
+
         $transaksis = $query->latest('tanggal_transaksi')->paginate(20);
 
-        return view('pemilik.transaksi', compact('transaksis', 'search', 'status'));
+        return view('pemilik.transaksi', compact('transaksis', 'search', 'status', 'start_date', 'end_date'));
     }
 }
