@@ -217,7 +217,7 @@
                     </button>
                 </div>
                 <button id="btn-bayar-qris" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-blue-600/30">
-                    BAYAR QRIS (TUNDA)
+                    QRIS
                 </button>
             </div>
         </div>
