@@ -94,6 +94,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/kasir/transaksi/create', [KasirTransaksiController::class, 'create'])->name('dashboard.kasir.transaksi.create');
 
     Route::post('/dashboard/kasir/transaksi/store', [KasirTransaksiController::class, 'store'])->name('dashboard.kasir.transaksi.store');
+    
+    // ==========================================
+    // ROUTE BARU: API GENERATE DYNAMIC QRIS XENDIT
+    // ==========================================
+    Route::post('/dashboard/kasir/transaksi/qris', [KasirTransaksiController::class, 'buatQrisDinamis'])->name('dashboard.kasir.transaksi.qris');
+    
     Route::get('/dashboard/kasir/transaksi/struk/{id}', [KasirTransaksiController::class, 'struk'])->name('dashboard.kasir.struk');
     Route::post('/dashboard/kasir/transaksi/{id}/lunasi', [KasirTransaksiController::class, 'lunasi'])->name('dashboard.kasir.transaksi.lunasi');
     Route::post('/dashboard/kasir/transaksi/{id}/update-pembayaran', [KasirTransaksiController::class, 'updatePembayaran'])->name('dashboard.kasir.transaksi.updatePembayaran');
@@ -108,3 +114,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard/pemilik/laporan', [App\Http\Controllers\Pemilik\LaporanController::class, 'index'])->name('dashboard.pemilik.laporan');
 });
+
+// =========================================================================
+// ROUTE WEBHOOK CALLBACK: Di luar middleware auth agar Xendit bisa akses bebas
+// =========================================================================
+Route::post('/api/callback-xendit', [KasirTransaksiController::class, 'handleCallback']);

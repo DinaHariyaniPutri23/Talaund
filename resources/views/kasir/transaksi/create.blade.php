@@ -7,7 +7,6 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- SEKSI 1: DATA PELANGGAN -->
     <div class="bg-white rounded-2xl p-6 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 relative">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase">Langkah 1: Data Pelanggan</h3>
@@ -26,13 +25,10 @@
                     </button>
                 </div>
 
-                <!-- Dropdown Hasil Pencarian -->
                 <div id="search-dropdown" class="absolute w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-lg shadow-gray-200/50 hidden max-h-60 overflow-y-auto divide-y divide-gray-50">
-                    <!-- Data injeksi via JS -->
                 </div>
             </div>
             
-            <!-- Form Input Pelanggan -->
             <input type="hidden" id="input-id-pelanggan" value="">
             <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                 <div>
@@ -61,12 +57,10 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- SEKSI 2: DETAIL CUCIAN -->
         <div class="lg:col-span-2 bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100">
             <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Langkah 2: Detail Cucian</h3>
             
             <div class="space-y-6">
-                <!-- 1. Pilih Item -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">1. Pilih Item</label>
                     <div class="relative">
@@ -84,7 +78,6 @@
                     </div>
                 </div>
 
-                <!-- 2. Jenis Pencucian -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">2. Jenis Pencucian</label>
                     <div class="relative">
@@ -100,7 +93,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Jenis Layanan -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">3. Jenis Layanan</label>
                     <div class="relative">
@@ -116,7 +108,6 @@
                     </div>
                 </div>
                 
-                <!-- 4. Jenis Pengiriman -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">4. Jenis Pengiriman</label>
                     <div class="relative">
@@ -132,7 +123,6 @@
                     </div>
                 </div>
                 
-                <!-- 5. Berat/Jumlah -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">5. Berat / Jumlah</label>
                     <div class="flex flex-col sm:flex-row items-center gap-3">
@@ -151,7 +141,6 @@
             </div>
         </div>
 
-        <!-- SEKSI 3: RINGKASAN NOTA -->
         <div class="bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 flex flex-col">
             <h3 class="text-sm font-bold text-gray-400 tracking-wider uppercase mb-6">Langkah 3: Ringkasan Nota</h3>
             
@@ -170,15 +159,12 @@
                 </div>
             </div>
 
-            <!-- List of items -->
             <div id="cart-container" class="flex-1 overflow-y-auto no-scrollbar mb-6 min-h-[150px]">
                 <div id="empty-cart-msg" class="text-center text-gray-400 text-sm mt-10 italic">
                     Belum ada item ditambahkan.
                 </div>
-                <!-- Items will be injected here via JS -->
             </div>
 
-            <!-- Totals -->
             <div class="space-y-4 pt-4 border-t border-gray-100 border-dashed">
                 <div class="flex justify-between items-center">
                     <span class="text-sm text-gray-500 font-medium">Subtotal:</span>
@@ -206,7 +192,6 @@
                 </div>
             </div>
 
-            <!-- Payment Buttons -->
             <div class="mt-6 space-y-3">
                 <div class="grid grid-cols-2 gap-3">
                     <button id="btn-bayar-tunai" class="py-3.5 bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 rounded-xl font-bold text-sm transition-all shadow-sm">
@@ -221,6 +206,38 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="modal-qris" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm hidden">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 text-center relative">
+        
+        <h3 class="text-base font-black text-gray-800 tracking-wide mb-1">PEMBAYARAN QRIS CASHLESS</h3>
+        <p class="text-xs text-gray-400 mb-4">Scan barcode di bawah ini untuk membayar</p>
+        
+        <div class="bg-gray-50 rounded-xl p-4 min-h-[260px] flex flex-col items-center justify-center border border-gray-100 relative">
+            <div id="qris-loading" class="flex flex-col items-center gap-2">
+                <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-xs font-medium text-gray-500">Menghubungi Xendit...</span>
+            </div>
+
+            <div id="qris-image-container" class="hidden">
+                <img id="qris-image" src="" alt="QRIS Code Mila Laundry" class="w-56 h-56 mx-auto rounded-lg shadow-sm">
+                <p class="text-xs font-black text-blue-600 mt-3 tracking-widest uppercase">NOMINAL: <span id="qris-total-display">Rp 0</span></p>
+            </div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-2 rounded-xl text-left border border-amber-100">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <p class="text-[11px] leading-tight font-medium">Harga sudah terkunci otomatis di m-banking/e-wallet pelanggan tanpa perlu ketik manual.</p>
+        </div>
+
+        <button id="btn-tutup-qris" type="button" class="mt-4 w-full py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold text-xs transition-all">
+            BATALKAN TRANSAKSI
+        </button>
     </div>
 </div>
 
@@ -519,7 +536,7 @@
         // Add to Cart Logic
         btnTambah.addEventListener('click', function() {
             if (!itemSelect.value || !pencucianSelect.value || !layananSelect.value) {
-                alert('Pilih Item, Jenis Pencucian, dan Jenis Layanan terlebih dahulu!');
+                alert('Pilih Item, Jenis Pencucian, and Jenis Layanan terlebih dahulu!');
                 return;
             }
 
@@ -713,7 +730,7 @@
             btnElement.disabled = true;
             btnElement.innerHTML = 'MEMPROSES...';
 
-            fetch('{{ route("dashboard.kasir.transaksi.store") }}', {
+            fetch('/dashboard/kasir/transaksi/store', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -750,10 +767,111 @@
             });
         }
 
-        // TOMBOL BAYAR QRIS
+        // TOMBOL BAYAR QRIS DYNAMIC XENDIT
         const btnBayarQris = document.getElementById('btn-bayar-qris');
+        const modalQris = document.getElementById('modal-qris');
+        const btnTutupQris = document.getElementById('btn-tutup-qris');
+        const qrisLoading = document.getElementById('qris-loading');
+        const qrisImageContainer = document.getElementById('qris-image-container');
+        const qrisImage = document.getElementById('qris-image');
+        const qrisTotalDisplay = document.getElementById('qris-total-display');
+
         btnBayarQris.addEventListener('click', function() {
-            alert('Fitur Pembayaran QRIS / Xendit sedang dalam proses integrasi.');
+            // 1. Validasi Keranjang Kosong
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+
+            // 2. Ambil data pelanggan & pengiriman
+            const pelanggan_id = inputIdPelanggan.value;
+            const pelanggan_nama = inputNama.value.trim();
+            const pelanggan_hp = inputHp.value.trim();
+            const pelanggan_alamat = inputAlamat.value.trim();
+            const pengiriman_id = pengirimanSelect.value;
+
+            if (!pelanggan_nama || !pelanggan_hp) {
+                alert('Nama dan Nomor HP pelanggan wajib diisi!');
+                return;
+            }
+
+            if (!/^\d{11,12}$/.test(pelanggan_hp)) {
+                alert('Nomor HP harus 11-12 angka!');
+                return;
+            }
+
+            if (!pengiriman_id) {
+                alert('Silakan pilih jenis pengiriman terlebih dahulu!');
+                return;
+            }
+
+            // 3. Hitung nominal total nota setelah promo
+            let promoDiscount = parseFloat(promoSelect.options[promoSelect.selectedIndex].getAttribute('data-potongan')) || 0;
+            let totalAkhir = subtotal - promoDiscount;
+            if (totalAkhir < 0) totalAkhir = 0;
+
+            // 4. Siapkan Tampilan Awal Modal (Tampilkan Loading, Sembunyikan Gambar)
+            qrisTotalDisplay.innerText = formatRupiah(totalAkhir);
+            qrisLoading.classList.remove('hidden');
+            qrisImageContainer.classList.add('hidden');
+            modalQris.classList.remove('hidden'); // Membuka pop-up modal
+
+            // 5. Tembak ke Back-End Laravel menggunakan URL Relatif / Batalkan penggunaan route() agar anti-tabrakan Domain
+            fetch('/dashboard/kasir/transaksi/qris', { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    pelanggan_id: pelanggan_id,
+                    pelanggan_nama: pelanggan_nama,
+                    pelanggan_hp: pelanggan_hp,
+                    pelanggan_alamat: pelanggan_alamat,
+                    pengiriman_id: pengiriman_id,
+                    promo_id: promoSelect.value,
+                    total: totalAkhir,
+                    cart: cart
+                })
+            })
+            .then(async response => {
+                if (!response.ok) {
+                    // Coba baca pesan error dari Laravel (misal 422 validasi atau 500 error)
+                    let errorMsg = 'HTTP error ' + response.status;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || JSON.stringify(errorData.errors) || errorMsg;
+                    } catch (e) {}
+                    throw new Error(errorMsg);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success && data.qr_data) {
+                    // 6. Jika sukses, ubah teks string QR dari Xendit menjadi Gambar asli via Google API QR
+                    qrisImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.qr_data)}`;
+                    
+                    // Sembunyikan loading spinner dan tampilkan Barcode QRIS-nya
+                    qrisLoading.classList.add('hidden');
+                    qrisImageContainer.classList.remove('hidden');
+                } else {
+                    alert('Gagal membuat QRIS: ' + (data.message || 'Respons data Xendit kosong.'));
+                    modalQris.classList.add('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Gagal memproses transaksi QRIS.\nDetail Error: ' + error.message + '\n\nSilakan refresh halaman (F5) dan coba lagi.');
+                modalQris.classList.add('hidden');
+            });
+        });
+
+        // Logika Menutup Modal jika kasir klik batal
+        btnTutupQris.addEventListener('click', function() {
+            if (confirm('Apakah kamu yakin ingin membatalkan transaksi cashless ini?')) {
+                modalQris.classList.add('hidden');
+            }
         });
     });
 </script>

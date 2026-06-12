@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Kasir;
 
 use App\Http\Controllers\Controller;
 
-
 use Illuminate\Http\Request;
 use App\Models\Pelanggan;
 use App\Models\ItemLaundry;
@@ -13,8 +12,8 @@ use App\Models\Pencucian;
 use App\Models\Pengiriman;
 use App\Models\Promo;
 use App\Models\Transaksi;
-use App\Models\DetailTransaksi;
-use App\Models\Pembayaran;
+use App\Models\DetailTransaksi; // <-- Sudah Pasti Ada
+use App\Models\Pembayaran;      // <-- Sudah Pasti Ada
 use App\Models\MSatuan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -98,8 +97,6 @@ class TransaksiController extends Controller
         return view('kasir.transaksi.create', $data);
     }
 
-
-
     public function store(Request $request)
     {
         // Validasi input dasar
@@ -140,7 +137,6 @@ class TransaksiController extends Controller
             // 1. Simpan Transaksi Utama
             $transaksi = Transaksi::create([
                 'pelanggan_id' => $pelanggan_id,
-                // Kita gunakan user id 1 (Kasir) jika auth belum siap, atau Auth::id()
                 'user_id' => Auth::id() ?? 1, 
                 'promo_id' => $request->promo_id > 0 ? $request->promo_id : null,
                 'pengiriman_id' => $request->pengiriman_id,
@@ -244,7 +240,6 @@ class TransaksiController extends Controller
 
         $transaksi = Transaksi::findOrFail($id);
 
-        // Hanya bisa void jika PENDING atau DIPROSES, tidak SELESAI
         if ($transaksi->status_transaksi === 'selesai') {
             return response()->json([
                 'success' => false,
@@ -264,5 +259,154 @@ class TransaksiController extends Controller
         ]);
     }
 
+    // =========================================================================
+    // INTEGRASI BARU: GENERATE DYNAMIC QRIS XENDIT VIA BACKEND (METODE cURL AMAN)
+    // =========================================================================
+    public function buatQrisDinamis(Request $request)
+    {
+        $request->validate([
+            'pelanggan_nama' => 'required|string|max:255',
+            'pengiriman_id' => 'required|exists:jenis_pengiriman,id',
+            'cart' => 'required|array|min:1',
+            'total' => 'required|numeric'
+        ]);
 
+        DB::beginTransaction();
+        try {
+            // Logika Pelanggan
+            $pelanggan_id = $request->pelanggan_id;
+            if (!$pelanggan_id) {
+                $pelanggan = Pelanggan::create([
+                    'nama_lengkap' => $request->pelanggan_nama,
+                    'no_telepon' => $request->pelanggan_hp,
+                    'alamat' => $request->pelanggan_alamat,
+                ]);
+                $pelanggan_id = $pelanggan->id;
+            } else {
+                $pelanggan = Pelanggan::find($pelanggan_id);
+                if ($pelanggan) {
+                    $pelanggan->update([
+                        'nama_lengkap' => $request->pelanggan_nama,
+                        'no_telepon' => $request->pelanggan_hp,
+                        'alamat' => $request->pelanggan_alamat,
+                    ]);
+                }
+            }
+
+            // Simpan Transaksi Utama
+            $transaksi = Transaksi::create([
+                'pelanggan_id' => $pelanggan_id,
+                'user_id' => Auth::id() ?? 1, 
+                'promo_id' => $request->promo_id > 0 ? $request->promo_id : null,
+                'pengiriman_id' => $request->pengiriman_id,
+                'tanggal_transaksi' => now(),
+                'total_transaksi' => $request->total,
+            ]);
+
+            // Simpan Detail Transaksi
+            foreach ($request->cart as $item) {
+                DetailTransaksi::create([
+                    'transaksi_id' => $transaksi->id,
+                    'item_id' => $item['item_id'] ?? null,
+                    'layanan_id' => $item['layanan_id'] ?? null,
+                    'pencucian_id' => $item['pencucian_id'] ?? null,
+                    'harga_unit' => $item['unitPrice'] ?? ($item['price'] ?? 0),
+                    'total_berat' => $item['qty_num'] ?? 1,
+                    'subtotal' => $item['price'] ?? 0,
+                ]);
+            }
+
+            $id_nota_lokal = 'MILA-' . $transaksi->id . '-' . now()->timestamp;
+            
+            // Mengambil Secret Key langsung dari .env agar dinamis dan menghindari typo
+            $secret_key = env('XENDIT_SECRET_KEY');
+
+            // Kita tentukan callback url berdasarkan APP_URL dari .env secara paksa
+            // Jangan pakai url() karena akan mengikuti browser user (misal laragon.test) yang ditolak Xendit
+            $app_url = rtrim(env('APP_URL', 'http://localhost'), '/');
+            $callback_url = $app_url . '/api/callback-xendit';
+            
+            // Konfigurasi Payload Xendit
+            $payload = [
+                'external_id' => $id_nota_lokal,
+                'type' => 'DYNAMIC',
+                'amount' => (int)$request->total,
+            ];
+
+            // Tambahkan callback_url ke payload hanya jika menggunakan domain asli / ngrok (bukan localhost)
+            // Karena Xendit akan menolak request jika URL-nya localhost/127.0.0.1
+            if (!str_contains($callback_url, 'localhost') && !str_contains($callback_url, '127.0.0.1')) {
+                $payload['callback_url'] = $callback_url;
+            }
+
+            $ch = curl_init();
+            
+            \Illuminate\Support\Facades\Log::info('Xendit Payload:', $payload);
+            \Illuminate\Support\Facades\Log::info('Xendit URL: ' . $callback_url);
+
+            curl_setopt_array($ch, [
+                CURLOPT_URL => 'https://api.xendit.co/qr_codes',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_USERPWD => $secret_key . ':',
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+                CURLOPT_POSTFIELDS => json_encode($payload)
+            ]);
+
+            $responseXendit = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            $responseData = json_decode($responseXendit, true);
+
+            if ($httpCode !== 200 && $httpCode !== 201) {
+                throw new \Exception($responseData['message'] ?? 'Respon Xendit API bermasalah.');
+            }
+
+            // Simpan Data Pembayaran awal (Status: unpaid)
+            Pembayaran::create([
+                'transaksi_id' => $transaksi->id,
+                'id_xendit' => $responseData['id'], 
+                'tanggal_bayar' => null,
+                'metode_bayar' => 'QRIS Cashless',
+                'status_bayar' => 'unpaid',
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'qr_data' => $responseData['qr_string']
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Illuminate\Support\Facades\Log::error('QRIS Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses QRIS Xendit: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // =========================================================================
+    // INTEGRASI BARU: WEBHOOK CALLBACK PAID AUTOMATION
+    // =========================================================================
+    public function handleCallback(Request $request)
+    {
+        $id_qris_xendit = $request->id;
+        $status_dari_xendit = $request->status;
+
+        if ($status_dari_xendit == 'COMPLETED' || $status_dari_xendit == 'PAID') {
+            $pembayaran = Pembayaran::where('id_xendit', $id_qris_xendit)->first();
+            if ($pembayaran) {
+                $pembayaran->update([
+                    'status_bayar' => 'paid',
+                    'tanggal_bayar' => now()
+                ]);
+            }
+        }
+
+        return response()->json(['status' => 'CALLBACK_ACCEPTED']);
+    }
 }
