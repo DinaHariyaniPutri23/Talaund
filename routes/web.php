@@ -24,6 +24,8 @@ use App\Http\Controllers\SuperAdmin\DataMaster\PromoMasterController;
 use App\Http\Controllers\SuperAdmin\DataMaster\SatuanMasterController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdmin\ManajemenUserController;
+use App\Http\Controllers\SuperAdmin\KonfigurasiController;
+use App\Http\Controllers\SuperAdmin\KendaliController;
 use App\Http\Controllers\SuperAdmin\RiwayatController as SuperAdminRiwayatController;
 use App\Http\Controllers\SuperAdmin\TransaksiController as SuperAdminTransaksiController;
 use App\Http\Controllers\Kasir\DashboardController as KasirDashboardController;
@@ -34,6 +36,8 @@ use App\Http\Controllers\PelangganController;
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::post('/dashboard/kasir/transaksi/check-status', [KasirTransaksiController::class, 'checkStatus'])->name('kasir.transaksi.check-status');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard/super-admin', [SuperAdminDashboardController::class, 'index'])->name('dashboard.super_admin');
@@ -75,13 +79,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/super-admin/transaksi', [SuperAdminTransaksiController::class, 'index'])->name('dashboard.super_admin.transaksi');
     Route::get('/dashboard/super-admin/riwayat', [SuperAdminRiwayatController::class, 'index'])->name('dashboard.super_admin.riwayat');
 
-    Route::get('/dashboard/super-admin/kendali', function () {
-        return view('super_admin.kendali');
-    })->name('dashboard.super_admin.kendali');
+    Route::get('/dashboard/super-admin/kendali', [KendaliController::class, 'index'])->name('dashboard.super_admin.kendali');
+    Route::post('/dashboard/super-admin/kendali', [KendaliController::class, 'store'])->name('super_admin.kendali.store');
+    Route::post('/dashboard/super-admin/kendali/update', [KendaliController::class, 'update'])->name('super_admin.kendali.update');
+    Route::put('/dashboard/super-admin/kendali/{id}', [KendaliController::class, 'updateInfo'])->name('super_admin.kendali.update_info');
+    Route::delete('/dashboard/super-admin/kendali/{id}', [KendaliController::class, 'destroy'])->name('super_admin.kendali.destroy');
 
-    Route::get('/dashboard/super-admin/konfigurasi', function () {
-        return view('super_admin.konfigurasi');
-    })->name('dashboard.super_admin.konfigurasi');
+    Route::get('/dashboard/super-admin/konfigurasi', [KonfigurasiController::class, 'index'])->name('dashboard.super_admin.konfigurasi');
+    Route::post('/dashboard/super-admin/konfigurasi', [KonfigurasiController::class, 'update'])->name('super_admin.konfigurasi.update');
 
     Route::get('/dashboard/kasir', [KasirDashboardController::class, 'index'])->name('dashboard.kasir');
 
@@ -102,8 +107,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/dashboard/kasir/transaksi/struk/{id}', [KasirTransaksiController::class, 'struk'])->name('dashboard.kasir.struk');
     Route::post('/dashboard/kasir/transaksi/{id}/lunasi', [KasirTransaksiController::class, 'lunasi'])->name('dashboard.kasir.transaksi.lunasi');
-    Route::post('/dashboard/kasir/transaksi/{id}/update-pembayaran', [KasirTransaksiController::class, 'updatePembayaran'])->name('dashboard.kasir.transaksi.updatePembayaran');
-    Route::post('/dashboard/kasir/transaksi/{id}/void', [KasirTransaksiController::class, 'voidTransaksi'])->name('dashboard.kasir.transaksi.void');
+    Route::post('/dashboard/kasir/transaksi/{id}/update-pembayaran', [KasirTransaksiController::class, 'updatePembayaran'])->name('dashboard.kasir.transaksi.update_pembayaran');
 
 
     Route::get('/dashboard/kasir/riwayat', [KasirRiwayatController::class, 'index'])->name('dashboard.kasir.riwayat');
@@ -119,3 +123,6 @@ Route::middleware('auth')->group(function () {
 // ROUTE WEBHOOK CALLBACK: Di luar middleware auth agar Xendit bisa akses bebas
 // =========================================================================
 Route::post('/api/callback-xendit', [KasirTransaksiController::class, 'handleCallback']);
+
+Route::post('/dashboard/kasir/transaksi/xendit-invoice', [KasirTransaksiController::class, 'buatInvoiceXendit'])->name('kasir.transaksi.xendit');
+

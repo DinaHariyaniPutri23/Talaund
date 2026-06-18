@@ -19,7 +19,7 @@ class TransaksiController extends Controller
 
         if ($search) {
             $query->where(function($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
+                $q->whereRaw("CONCAT('INV-', LPAD(id, 5, '0')) LIKE ?", ["%{$search}%"])
                   ->orWhereHas('pelanggan', function($q2) use ($search) {
                       $q2->where('nama_lengkap', 'like', "%{$search}%");
                   });

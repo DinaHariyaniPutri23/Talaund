@@ -10,10 +10,20 @@ use Illuminate\Support\Facades\Validator;
 
 class ManajemenUserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = Pengguna::orderBy('id', 'desc')->paginate(10);
-        return view('super_admin.manajemen_user', compact('users'));
+        $search = $request->input('search');
+        
+        $query = Pengguna::query();
+        
+        if ($search) {
+            $query->where('nama', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('peran', 'like', "%{$search}%");
+        }
+        
+        $users = $query->orderBy('id', 'desc')->paginate(10);
+        return view('super_admin.manajemen_user', compact('users', 'search'));
     }
 
     public function store(Request $request)

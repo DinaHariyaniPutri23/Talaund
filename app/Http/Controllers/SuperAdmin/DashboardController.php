@@ -13,11 +13,25 @@ class DashboardController extends Controller
     {
         $totalPelanggan = Pelanggan::count();
         
+        $kasHariIni = Transaksi::whereHas('pembayaran', function($q) {
+            $q->where('status_bayar', 'paid');
+        })->whereDate('tanggal_transaksi', now()->toDateString())->sum('total_transaksi');
+
+        $transaksiLunas = Transaksi::whereHas('pembayaran', function ($q) {
+            $q->where('status_bayar', 'paid');
+        })->count();
+
+        $transaksiPending = Transaksi::whereHas('pembayaran', function ($q) {
+            $q->where('status_bayar', '!=', 'paid');
+        })->count();
+
+        $cucianBerjalan = Transaksi::whereIn('status_transaksi', ['pending', 'proses'])->count();
+        
         $riwayatAktivitas = Transaksi::with('pengguna')
             ->latest('tanggal_transaksi')
             ->take(5)
             ->get();
 
-        return view('super_admin.dashboard', compact('totalPelanggan', 'riwayatAktivitas'));
+        return view('super_admin.dashboard', compact('totalPelanggan', 'riwayatAktivitas', 'kasHariIni', 'cucianBerjalan', 'transaksiLunas', 'transaksiPending'));
     }
 }

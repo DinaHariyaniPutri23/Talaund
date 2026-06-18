@@ -51,37 +51,48 @@
     <div class="bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-gray-100 overflow-hidden">
         
         <!-- Toolbar (Search & Filters) -->
-        <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                <div class="relative w-full sm:w-60">
-                    <form action="{{ route('dashboard.super_admin.transaksi') }}" method="GET" class="w-full">
+        <div class="p-6 border-b border-gray-50 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div class="w-full">
+                <form action="{{ route('dashboard.super_admin.transaksi') }}" method="GET" class="flex flex-col lg:flex-row items-center gap-3 w-full">
+                    <div class="relative w-full lg:w-64">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" name="search" value="{{ $search ?? '' }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all" placeholder="Cari No Nota, Pelanggan, atau Kasir..." onchange="this.form.submit()">
-                    </form>
-                </div>
-                
-                <div class="relative w-full sm:w-48">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <input type="text" name="search" value="{{ $search ?? '' }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all" placeholder="Cari No Nota, Pelanggan, atau Kasir...">
                     </div>
-                    <input type="date" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-gray-600" title="Filter Tanggal">
-                </div>
+                    
+                    <select name="status" class="block w-full lg:w-40 pl-3 pr-10 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
+                        <option value="">Status Bayar</option>
+                        <option value="lunas" {{ ($status ?? '') === 'lunas' ? 'selected' : '' }}>Lunas</option>
+                        <option value="pending" {{ ($status ?? '') === 'pending' ? 'selected' : '' }}>Belum Lunas</option>
+                    </select>
 
-                <select class="block w-full sm:w-40 pl-3 pr-10 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all appearance-none cursor-pointer">
-                    <option value="">Semua Status</option>
-                    <option value="lunas">Lunas</option>
-                    <option value="belum_lunas">Belum Lunas</option>
-                    <option value="void">Dibatalkan</option>
-                </select>
-            </div>
-            
-            <div class="flex items-center gap-2 w-full sm:w-auto">
-                <button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2.5 rounded-xl font-medium text-sm transition-all border border-emerald-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Export Data
-                </button>
+                    <div class="flex items-center gap-2 w-full lg:w-auto mt-3 lg:mt-0">
+                        <span class="text-sm text-gray-500 whitespace-nowrap">Periode:</span>
+                        <input type="date" name="start_date" value="{{ $start_date ?? '' }}" class="block w-full lg:w-auto px-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all">
+                        <span class="text-gray-500">-</span>
+                        <input type="date" name="end_date" value="{{ $end_date ?? '' }}" class="block w-full lg:w-auto px-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all">
+                    </div>
+
+                    <div class="flex items-center gap-2 w-full lg:w-auto mt-3 lg:mt-0">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors w-full lg:w-auto justify-center">
+                            Cari
+                        </button>
+
+                        @if(request()->hasAny(['search', 'status', 'start_date', 'end_date']) && (request('search') || request('status') || request('start_date') || request('end_date')))
+                            <a href="{{ route('dashboard.super_admin.transaksi') }}" class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition-colors w-full lg:w-auto justify-center">
+                                Reset
+                            </a>
+                        @endif
+                    </div>
+                    
+                    <div class="flex items-center gap-2 w-full lg:w-auto mt-3 lg:mt-0 lg:ml-auto">
+                        <button type="button" class="flex-1 lg:flex-none flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-4 py-2.5 rounded-xl font-medium text-sm transition-all border border-emerald-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Export Data
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -137,7 +148,7 @@
         </div>
 
         <div class="p-4 border-t border-gray-100">
-            {{ $transaksis->links() }}
+            {{ $transaksis->withQueryString()->links() }}
         </div>
     </div>
 </div>

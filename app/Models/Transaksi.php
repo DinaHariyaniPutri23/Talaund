@@ -19,6 +19,7 @@ class Transaksi extends Model
         'status_transaksi',
         'alasan_void',
         'void_at',
+        'snap_token',
     ];
 
     protected $casts = [

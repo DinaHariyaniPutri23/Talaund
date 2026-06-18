@@ -12,10 +12,16 @@ class ItemLaundry extends Model
     protected $fillable = [
         'nama_item',
         'harga',
-        'satuan',
+        'id_satuan',
         'id_layanan',
         'id_pencucian',
     ];
+
+    // Relasi dengan MSatuan
+    public function mSatuan()
+    {
+        return $this->belongsTo(MSatuan::class, 'id_satuan');
+    }
 
     // Relasi dengan Layanan
     public function layanan()

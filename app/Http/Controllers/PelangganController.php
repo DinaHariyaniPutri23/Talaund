@@ -8,10 +8,20 @@ use Illuminate\Support\Facades\Validator;
 
 class PelangganController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pelanggans = Pelanggan::orderBy('id_pelanggan', 'asc')->paginate(10);
-        return view('kasir.pelanggan', compact('pelanggans'));
+        $search = $request->input('search');
+        
+        $query = Pelanggan::query();
+        
+        if ($search) {
+            $query->where('nama_lengkap', 'like', "%{$search}%")
+                  ->orWhere('no_telepon', 'like', "%{$search}%");
+        }
+        
+        $pelanggans = $query->orderBy('id_pelanggan', 'asc')->paginate(10);
+        
+        return view('kasir.pelanggan', compact('pelanggans', 'search'));
     }
 
     public function store(Request $request)

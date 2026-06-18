@@ -1,8 +1,8 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Laporan Keuangan & Performa')
-@section('header_title', 'Laporan Keuangan & Performa')
-@section('header_subtitle', 'Rekapitulasi pendapatan tunai, non-tunai, dan performa operasional laundry.')
+@section('title', 'Laporan Keuangan')
+@section('header_title', 'Laporan Keuangan')
+@section('header_subtitle', 'Rekapitulasi pendapatan tunai, non-tunai, dan piutang')
 
 @section('content')
 <div class="space-y-6 pb-10">
@@ -27,7 +27,7 @@
 
         <!-- Export Buttons -->
         <div class="flex items-center gap-3 w-full lg:w-auto mt-4 lg:mt-0">
-            <form action="{{ route('dashboard.pemilik.laporan') }}" method="GET" class="inline" target="_blank">
+            <form action="{{ route('dashboard.pemilik.laporan') }}" method="GET" class="inline">
                 <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
                 <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
                 <input type="hidden" name="export" value="pdf">
@@ -36,7 +36,7 @@
                     Ekspor PDF
                 </button>
             </form>
-            <form action="{{ route('dashboard.pemilik.laporan') }}" method="GET" class="inline" target="_blank">
+            <form action="{{ route('dashboard.pemilik.laporan') }}" method="GET" class="inline">
                 <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
                 <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
                 <input type="hidden" name="export" value="excel">

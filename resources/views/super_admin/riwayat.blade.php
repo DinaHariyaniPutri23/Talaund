@@ -83,7 +83,7 @@
         </div>
 
         <div class="p-4 border-t border-gray-100">
-            {{ $riwayats->links() }}
+            {{ $riwayats->withQueryString()->links() }}
         </div>
     </div>
 </div>

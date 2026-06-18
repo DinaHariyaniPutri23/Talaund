@@ -12,7 +12,7 @@
             <div class="flex-1">
                 <p class="text-textDark text-[0.85rem] font-semibold mb-[5px]">Total Omzet Bulan Ini</p>
                 <h4 class="text-[1.6rem] font-bold mb-[8px] text-[#10B981]">Rp {{ number_format($totalOmzetBulanIni, 0, ',', '.') }}</h4>
-                <p class="text-[0.8rem] text-textMuted">{{ $percentageOmzet >= 0 ? '+' : '' }}{{ $percentageOmzet }}% dari bulan lalu</p>
+                <p class="text-[0.8rem] text-textMuted">Per bulan ini</p>
             </div>
         </div>
 
@@ -23,7 +23,7 @@
             <div class="flex-1">
                 <p class="text-textDark text-[0.85rem] font-semibold mb-[5px]">Total Transaksi</p>
                 <h4 class="text-[1.6rem] font-bold mb-[8px] text-[#3B82F6]">{{ number_format($totalTransaksiBulanIni) }}</h4>
-                <p class="text-[0.8rem] text-textMuted">{{ $percentageTransaksi >= 0 ? '+' : '' }}{{ $percentageTransaksi }}% dari bulan lalu</p>
+                <p class="text-[0.8rem] text-textMuted">Per bulan ini</p>
             </div>
         </div>
 
@@ -34,7 +34,7 @@
             <div class="flex-1">
                 <p class="text-textDark text-[0.85rem] font-semibold mb-[5px]">Jumlah Pelanggan Baru</p>
                 <h4 class="text-[1.6rem] font-bold mb-[8px] text-[#8B5CF6]">{{ number_format($pelangganBaruBulanIni) }}</h4>
-                <p class="text-[0.8rem] text-textMuted">{{ $percentagePelanggan >= 0 ? '+' : '' }}{{ $percentagePelanggan }}% dari bulan lalu</p>
+                <p class="text-[0.8rem] text-textMuted">Per bulan ini</p>
             </div>
         </div>
 
@@ -55,13 +55,13 @@
         <div class="flex justify-between items-start mb-[20px]">
             <div>
                 <h3 class="text-[1.1rem] text-textDark mb-[5px] font-bold">Tren Pendapatan</h3>
-                <p class="text-[0.85rem] text-textMuted">Omzet 30 Hari Terakhir</p>
+                <p class="text-[0.85rem] text-textMuted">{{ $chartSubtitle ?? 'Omzet 30 Hari Terakhir' }}</p>
             </div>
             <div>
-                <select class="p-[8px_15px] rounded-[6px] border border-borderColor outline-none bg-cardBg font-sans text-[0.85rem]">
-                    <option>30 Hari Terakhir</option>
-                    <option>Bulan Ini</option>
-                    <option>Tahun Ini</option>
+                <select onchange="window.location.href='?filter=' + this.value" class="p-[8px_15px] rounded-[6px] border border-borderColor outline-none bg-cardBg font-sans text-[0.85rem]">
+                    <option value="harian" {{ request('filter') == 'harian' ? 'selected' : '' }}>Harian</option>
+                    <option value="bulanan" {{ request('filter') == 'bulanan' ? 'selected' : '' }}>Bulanan</option>
+                    <option value="tahunan" {{ request('filter') == 'tahunan' ? 'selected' : '' }}>Tahunan</option>
                 </select>
             </div>
         </div>

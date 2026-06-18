@@ -14,14 +14,14 @@ class ItemLaundryMasterController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
-            'satuan' => 'required|string|in:pcs,kg',
+            'id_satuan' => 'required|exists:msatuan,id',
             'id_layanan' => 'nullable|exists:layanan,id',
             'id_pencucian' => 'nullable|exists:pencucian,id',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
-            'satuan.required' => 'Satuan harus dipilih.',
-            'satuan.in' => 'Satuan harus pcs atau kg.',
+            'id_satuan.required' => 'Satuan harus dipilih.',
+            'id_satuan.exists' => 'Satuan tidak valid.',
             'id_layanan.exists' => 'Layanan tidak ditemukan.',
             'id_pencucian.exists' => 'Jenis pencucian tidak ditemukan.',
         ]);
@@ -36,7 +36,7 @@ class ItemLaundryMasterController extends Controller
         ItemLaundry::create([
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
-            'satuan' => $request->satuan,
+            'id_satuan' => $request->id_satuan,
             'id_layanan' => $request->id_layanan,
             'id_pencucian' => $request->id_pencucian,
         ]);
@@ -51,14 +51,14 @@ class ItemLaundryMasterController extends Controller
         $validator = Validator::make($request->all(), [
             'nama_item' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
-            'satuan' => 'required|string|in:pcs,kg',
+            'id_satuan' => 'required|exists:msatuan,id',
             'id_layanan' => 'nullable|exists:layanan,id',
             'id_pencucian' => 'nullable|exists:pencucian,id',
         ], [
             'harga.numeric' => 'Harga harus berupa angka.',
             'harga.min' => 'Harga tidak boleh negatif.',
-            'satuan.required' => 'Satuan harus dipilih.',
-            'satuan.in' => 'Satuan harus pcs atau kg.',
+            'id_satuan.required' => 'Satuan harus dipilih.',
+            'id_satuan.exists' => 'Satuan tidak valid.',
             'id_layanan.exists' => 'Layanan tidak ditemukan.',
             'id_pencucian.exists' => 'Jenis pencucian tidak ditemukan.',
         ]);
@@ -73,7 +73,7 @@ class ItemLaundryMasterController extends Controller
         $item->update([
             'nama_item' => $request->nama_item,
             'harga' => $request->harga,
-            'satuan' => $request->satuan,
+            'id_satuan' => $request->id_satuan,
             'id_layanan' => $request->id_layanan,
             'id_pencucian' => $request->id_pencucian,
         ]);

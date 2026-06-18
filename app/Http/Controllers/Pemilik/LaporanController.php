@@ -104,55 +104,85 @@ class LaporanController extends Controller
     private function exportExcel($startDate, $endDate, $totalCucian, $totalTunai, $totalXendit, $totalPromo, $totalBersih, $rincianHarian)
     {
         $filename = 'Laporan_Keuangan_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '.csv';
+        $namaLaundry = \App\Models\Konfigurasi::where('key', 'nama_laundry')->value('value') ?? 'LAUNDRY';
         
-        $output = "LAPORAN KEUANGAN & PERFORMA LAUNDRY\n";
-        $output .= "Periode: " . $startDate->format('d M Y') . " - " . $endDate->format('d M Y') . "\n\n";
+        $output = fopen('php://temp', 'w');
         
-        $output .= "RINGKASAN\n";
-        $output .= "Total Cucian Masuk," . $totalCucian . "\n";
-        $output .= "Total Tunai (Cash),Rp " . number_format($totalTunai, 0, ',', '.') . "\n";
-        $output .= "Total Xendit (Non-Tunai),Rp " . number_format($totalXendit, 0, ',', '.') . "\n";
-        $output .= "Total Potongan Promo,-Rp " . number_format($totalPromo, 0, ',', '.') . "\n";
-        $output .= "Total Bersih,Rp " . number_format($totalBersih, 0, ',', '.') . "\n\n";
+        // UTF-8 BOM for Excel to read characters properly
+        fwrite($output, "\xEF\xBB\xBF");
         
-        $output .= "RINCIAN HARIAN\n";
-        $output .= "Tanggal,Jml Nota,Tunai (Cash),Xendit (Non-Tunai),Potongan Promo,Total Pemasukan Bersih\n";
+        // Add sep=, directive so Excel knows exactly what separator to use regardless of region
+        fwrite($output, "sep=,\n");
+        
+        fputcsv($output, ["LAPORAN KEUANGAN & PERFORMA " . strtoupper($namaLaundry)]);
+        fputcsv($output, ["Periode: " . $startDate->format('d M Y') . " - " . $endDate->format('d M Y')]);
+        fputcsv($output, []);
+        
+        fputcsv($output, ["RINGKASAN"]);
+        fputcsv($output, ["Total Cucian Masuk", $totalCucian . " Nota"]);
+        fputcsv($output, ["Total Tunai (Cash)", "Rp " . number_format($totalTunai, 0, ',', '.')]);
+        fputcsv($output, ["Total Xendit (Non-Tunai)", "Rp " . number_format($totalXendit, 0, ',', '.')]);
+        fputcsv($output, ["Total Potongan Promo", "-Rp " . number_format($totalPromo, 0, ',', '.')]);
+        fputcsv($output, ["Total Bersih", "Rp " . number_format($totalBersih, 0, ',', '.')]);
+        fputcsv($output, []);
+        
+        fputcsv($output, ["RINCIAN HARIAN"]);
+        fputcsv($output, ['Tanggal', 'Jml Nota', 'Tunai (Cash)', 'Xendit (Non-Tunai)', 'Potongan Promo', 'Total Pemasukan Bersih']);
         
         foreach ($rincianHarian as $rincian) {
-            $output .= $rincian['tanggal'] . ",";
-            $output .= $rincian['jml_nota'] . ",";
-            $output .= "Rp " . number_format($rincian['tunai'], 0, ',', '.') . ",";
-            $output .= "Rp " . number_format($rincian['xendit'], 0, ',', '.') . ",";
-            $output .= "-Rp " . number_format($rincian['promo'], 0, ',', '.') . ",";
-            $output .= "Rp " . number_format($rincian['total_bersih'], 0, ',', '.') . "\n";
+            fputcsv($output, [
+                $rincian['tanggal'],
+                $rincian['jml_nota'],
+                "Rp " . number_format($rincian['tunai'], 0, ',', '.'),
+                "Rp " . number_format($rincian['xendit'], 0, ',', '.'),
+                "-Rp " . number_format($rincian['promo'], 0, ',', '.'),
+                "Rp " . number_format($rincian['total_bersih'], 0, ',', '.')
+            ]);
         }
         
-        return response($output, 200)
+        rewind($output);
+        $csvData = stream_get_contents($output);
+        fclose($output);
+        
+        return response($csvData, 200)
             ->header('Content-Type', 'text/csv; charset=utf-8')
             ->header('Content-Disposition', 'attachment; filename=' . $filename);
     }
 
     private function exportPDF($startDate, $endDate, $totalCucian, $totalTunai, $totalXendit, $totalPromo, $totalBersih, $rincianHarian)
     {
+        $namaLaundry = \App\Models\Konfigurasi::where('key', 'nama_laundry')->value('value') ?? 'LAUNDRY';
+        $logoPath = \App\Models\Konfigurasi::where('key', 'logo_toko')->value('value');
+        $logoHtml = '';
+        if ($logoPath && file_exists(public_path($logoPath))) {
+            $type = pathinfo(public_path($logoPath), PATHINFO_EXTENSION);
+            $data = file_get_contents(public_path($logoPath));
+            $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            $logoHtml = "<div style='text-align: center; margin-bottom: 15px;'><img src='{$base64}' alt='Logo' style='max-height: 120px; width: auto;'></div>";
+        }
+        
+        $titleHtml = $logoHtml ? "<h1>LAPORAN KEUANGAN & PERFORMA</h1>" : "<h1>LAPORAN KEUANGAN & PERFORMA " . strtoupper($namaLaundry) . "</h1>";
+
         $html = "
         <html>
         <head>
             <meta charset='utf-8'>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; }
-                h1 { text-align: center; color: #333; }
+                h1 { text-align: center; color: #333; margin-top: 0; }
                 .summary { margin: 20px 0; }
                 .summary-item { display: inline-block; margin-right: 30px; }
                 table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+                th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
                 th { background-color: #f4f4f4; font-weight: bold; }
                 tr:nth-child(even) { background-color: #f9f9f9; }
-                .text-right { text-align: right; }
+                .text-right { text-align: center; }
                 .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
             </style>
         </head>
         <body>
-            <h1>LAPORAN KEUANGAN & PERFORMA LAUNDRY</h1>
+            {$logoHtml}
+            {$titleHtml}
             <p style='text-align: center;'>Periode: " . $startDate->format('d M Y') . " - " . $endDate->format('d M Y') . "</p>
             
             <div class='summary'>
@@ -214,12 +244,9 @@ class LaporanController extends Controller
         </body>
         </html>";
         
-        // Simple PDF generation by returning HTML that can be printed as PDF
-        // In production, use barryvdh/laravel-dompdf package
-        $filename = 'Laporan_Keuangan_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '.html';
+        // Generate real PDF using barryvdh/laravel-dompdf package
+        $filename = 'Laporan_Keuangan_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '.pdf';
         
-        return response($html, 200)
-            ->header('Content-Type', 'text/html; charset=utf-8')
-            ->header('Content-Disposition', 'attachment; filename=' . $filename);
+        return \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)->download($filename);
     }
 }

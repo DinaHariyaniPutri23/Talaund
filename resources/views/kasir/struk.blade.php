@@ -8,6 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap');
         
+        /* Tampilan Layout di Layar PC/HP */
         body {
             background-color: #f3f4f6;
             font-family: 'Courier Prime', monospace;
@@ -16,7 +17,7 @@
 
         .receipt-container {
             width: 100%;
-            max-width: 380px; /* ~80mm thermal paper width */
+            max-width: 380px; 
             background-color: white;
             margin: 0 auto;
             padding: 1.5rem;
@@ -24,7 +25,6 @@
             position: relative;
         }
 
-        /* Zig-zag border top and bottom to simulate torn paper */
         .receipt-container::before, .receipt-container::after {
             content: "";
             position: absolute;
@@ -47,11 +47,18 @@
             margin: 0.75rem 0;
         }
 
+        /* KHUSUS SAAT DICETAK PRINTER THERMAL (PUTIAN 583-01) */
         @media print {
+            @page {
+                margin: 0;
+                size: 58mm auto; /* Memaksa rasio 58mm */
+            }
             body {
                 background-color: white;
-                padding: 0;
+                width: 58mm !important;
+                padding: 2mm !important; 
                 margin: 0;
+                font-size: 11px !important; 
             }
             .no-print {
                 display: none !important;
@@ -63,16 +70,25 @@
                 max-width: 100%;
             }
             .receipt-container::before, .receipt-container::after {
-                display: none;
+                display: none; /* Efek zig-zag dihilangkan agar hemat tinta */
             }
         }
     </style>
 </head>
 <body class="text-black text-sm">
 
-    <!-- Kontrol Aksi (Tidak Ikut Tercetak) -->
     <div class="max-w-[380px] mx-auto flex gap-3 mb-6 no-print">
-        <a href="{{ route('dashboard.kasir.transaksi') }}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-center font-bold py-3 rounded-lg transition-colors text-sm">
+        @php
+            $backRoute = route('dashboard.kasir.transaksi');
+            if (auth()->check()) {
+                if (auth()->user()->peran === 'super_admin') {
+                    $backRoute = route('dashboard.super_admin.transaksi');
+                } elseif (auth()->user()->peran === 'pemilik') {
+                    $backRoute = route('dashboard.pemilik.transaksi');
+                }
+            }
+        @endphp
+        <a href="{{ $backRoute }}" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 text-center font-bold py-3 rounded-lg transition-colors text-sm">
             &laquo; KEMBALI
         </a>
         <button onclick="window.print()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-bold py-3 rounded-lg transition-colors text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30">
@@ -81,28 +97,29 @@
         </button>
     </div>
 
-    <!-- Kertas Struk -->
     <div class="receipt-container">
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h1 class="font-bold text-xl mb-1">MILA LAUNDRY</h1>
+        <div class="text-center mb-4 flex flex-col items-center">
+            @if(!empty($logoBase64))
+                <img src="{{ $logoBase64 }}" alt="Logo" class="h-20 w-auto max-w-full object-contain mb-3" style="filter: grayscale(100%);">
+            @else
+                <h1 class="font-bold text-xl mb-1 uppercase">{{ $konfigurasi['nama_laundry'] ?? 'MILA LAUNDRY' }}</h1>
+            @endif
             <p class="text-xs leading-relaxed">
-                Jl. Raya Kebersihan No. 99<br>
-                Telp: 0812-3456-7890<br>
-                IG: @milalaundry
+                {{ $konfigurasi['alamat'] ?? 'Jl. Raya Kebersihan No. 99' }}<br>
+                Telp: {{ $konfigurasi['no_telepon'] ?? '0812-3456-7890' }}<br>
+                Buka: {{ $konfigurasi['jam_buka'] ?? '08:00' }} - {{ $konfigurasi['jam_tutup'] ?? '21:00' }}
             </p>
         </div>
 
         <div class="dashed-line"></div>
 
-        <!-- Info Transaksi -->
         <div class="text-xs mb-3 space-y-1">
             <div class="flex justify-between">
                 <span>Nota:</span>
                 <span class="font-bold">INV-{{ str_pad($transaksi->id, 5, '0', STR_PAD_LEFT) }}</span>
             </div>
             <div class="flex justify-between">
-                <span>Tgl:</span>
+                <span>Tanggal:</span>
                 <span>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d/m/Y H:i') }}</span>
             </div>
             <div class="flex justify-between">
@@ -110,33 +127,29 @@
                 <span>{{ $transaksi->pengguna->nama ?? 'Kasir' }}</span>
             </div>
             <div class="flex justify-between mt-2">
-                <span>Plgn:</span>
+                <span>Pelanggan:</span>
                 <span class="font-bold uppercase text-right">{{ $transaksi->pelanggan->nama_lengkap }}</span>
             </div>
             <div class="flex justify-between">
-                <span>No HP:</span>
+                <span>Nomor HP:</span>
                 <span>{{ $transaksi->pelanggan->no_telepon }}</span>
             </div>
         </div>
 
         <div class="dashed-line"></div>
 
-        <!-- Detail Item -->
         <div class="text-xs space-y-3">
             @foreach($transaksi->detailTransaksi as $detail)
             <div>
-                <!-- Baris Nama Item -->
                 <div class="font-bold uppercase">
                     {{ $detail->itemLaundry->nama_item ?? 'Item' }} 
                     @if($detail->pencucian)
                         ({{ $detail->pencucian->nama_pencucian }})
                     @endif
                 </div>
-                <!-- Baris Layanan -->
                 @if($detail->layanan)
-                <div class="pl-2">- LYN: {{ $detail->layanan->nama_layanan }}</div>
+                <div class="pl-2">- Layanan: {{ $detail->layanan->nama_layanan }}</div>
                 @endif
-                <!-- Baris Qty dan Subtotal -->
                 <div class="flex justify-between pl-2 mt-1">
                     <span>
                         {{ number_format($detail->total_berat, 1) }} x {{ number_format($detail->harga_unit, 0, ',', '.') }}
@@ -149,7 +162,6 @@
 
         <div class="dashed-line"></div>
 
-        <!-- Ringkasan Total -->
         <div class="text-xs space-y-1">
             <div class="flex justify-between">
                 <span>Subtotal:</span>
@@ -171,7 +183,6 @@
         
         <div class="dashed-line"></div>
 
-        <!-- Total Akhir & Status -->
         <div class="flex justify-between items-center my-3">
             <span class="font-bold text-sm">TOTAL:</span>
             <span class="font-bold text-lg">Rp {{ number_format($transaksi->total_transaksi, 0, ',', '.') }}</span>
@@ -191,11 +202,14 @@
 
         <div class="dashed-line"></div>
 
-        <!-- Footer -->
         <div class="text-center text-xs mt-4 space-y-1">
-            <p>Terima Kasih Atas Kepercayaan Anda!</p>
-            <p>Barang yang tidak diambil > 1 bulan</p>
-            <p>bukan tanggung jawab kami.</p>
+            @if(isset($konfigurasi['pesan_struk']) && !empty($konfigurasi['pesan_struk']))
+                {!! nl2br(e($konfigurasi['pesan_struk'])) !!}
+            @else
+                <p>Terima Kasih Atas Kepercayaan Anda!</p>
+                <p>Barang yang tidak diambil > 1 minggu</p>
+                <p>bukan tanggung jawab kami.</p>
+            @endif
             <p class="mt-3 opacity-60">* SIMPAN STRUK INI *</p>
         </div>
     </div>

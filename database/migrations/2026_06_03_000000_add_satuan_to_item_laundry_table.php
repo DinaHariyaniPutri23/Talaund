@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('item_laundry', function (Blueprint $table) {
-            $table->string('satuan')->default('pcs')->after('harga');
+            $table->unsignedBigInteger('id_satuan')->nullable()->after('harga');
+            $table->foreign('id_satuan')->references('id')->on('msatuan')->onDelete('set null');
         });
     }
 
@@ -22,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('item_laundry', function (Blueprint $table) {
-            $table->dropColumn('satuan');
+            $table->dropForeign(['id_satuan']);
+            $table->dropColumn('id_satuan');
         });
     }
 };

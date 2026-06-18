@@ -49,10 +49,13 @@
         <!-- Toolbar (Search & Add) -->
         <div class="p-6 border-b border-gray-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="relative w-full sm:w-72">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                </div>
-                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all" placeholder="Cari data...">
+                <form action="{{ route('dashboard.super_admin.data_master') }}" method="GET">
+                    <input type="hidden" name="tab" value="{{ $tab }}">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}" class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all" placeholder="Cari data...">
+                </form>
             </div>
             
             @if($tab == 'pelanggan')
@@ -140,7 +143,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $pelanggans->currentPage() }} dari {{ $pelanggans->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $pelanggans->appends(['tab' => 'pelanggan'])->links('pagination::tailwind') }}
+                {{ $pelanggans->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -181,7 +184,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $pencucians->currentPage() }} dari {{ $pencucians->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $pencucians->appends(['tab' => 'pencucian'])->links('pagination::tailwind') }}
+                {{ $pencucians->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -222,7 +225,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $layanans->currentPage() }} dari {{ $layanans->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $layanans->appends(['tab' => 'layanan'])->links('pagination::tailwind') }}
+                {{ $layanans->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -249,12 +252,12 @@
                         <td class="py-4 px-6 font-medium text-gray-800 text-center border-x border-gray-200">ITM-{{ str_pad($i->id, 4, '0', STR_PAD_LEFT) }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->nama_item }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-blue-600">Rp {{ number_format($i->harga, 0, ',', '.') }}</td>
-                        <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-gray-700">{{ strtoupper($i->satuan) }}</td>
+                        <td class="py-4 px-6 text-center border-x border-gray-200 font-medium text-gray-700">{{ strtoupper($i->mSatuan->nama_satuan ?? '-') }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->layanan?->nama_layanan ?? '-' }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">{{ $i->pencucian?->nama_pencucian ?? '-' }}</td>
                         <td class="py-4 px-6 text-center border-x border-gray-200">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="openModalEditItem({{ $i->id }}, '{{ $i->nama_item }}', '{{ $i->harga }}', '{{ $i->satuan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
+                                <button onclick="openModalEditItem({{ $i->id }}, '{{ $i->nama_item }}', '{{ $i->harga }}', '{{ $i->id_satuan }}')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors" title="Edit"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
                                 <button onclick="openModalHapusItem({{ $i->id }}, '{{ $i->nama_item }}')" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </td>
@@ -271,7 +274,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $items->currentPage() }} dari {{ $items->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $items->appends(['tab' => 'item'])->links('pagination::tailwind') }}
+                {{ $items->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -312,7 +315,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $pengirimans->currentPage() }} dari {{ $pengirimans->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $pengirimans->appends(['tab' => 'pengiriman'])->links('pagination::tailwind') }}
+                {{ $pengirimans->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -363,7 +366,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $promos->currentPage() }} dari {{ $promos->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $promos->appends(['tab' => 'promo'])->links('pagination::tailwind') }}
+                {{ $promos->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
 
@@ -402,7 +405,7 @@
         <div class="p-4 border-t border-gray-50 flex items-center justify-between">
             <p class="text-sm text-gray-500">Menampilkan halaman {{ $satuans->currentPage() }} dari {{ $satuans->lastPage() }}</p>
             <div class="flex items-center gap-1">
-                {{ $satuans->appends(['tab' => 'satuan'])->links('pagination::tailwind') }}
+                {{ $satuans->withQueryString()->links('pagination::tailwind') }}
             </div>
         </div>
         @endif
@@ -1030,10 +1033,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Satuan <span class="text-red-500">*</span></label>
-                    <select name="satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                    <select name="id_satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                         <option value="" disabled selected>Pilih satuan...</option>
-                        <option value="pcs">PCS (Per Piece)</option>
-                        <option value="kg">KG (Per Kilogram)</option>
+                        @foreach($satuans_list as $s)
+                            <option value="{{ $s->id }}">{{ $s->nama_satuan }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>
@@ -1099,10 +1103,11 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Satuan <span class="text-red-500">*</span></label>
-                    <select id="edit_satuan_item" name="satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
+                    <select id="edit_satuan_item" name="id_satuan" required class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors">
                         <option value="" disabled>Pilih satuan...</option>
-                        <option value="pcs">PCS (Per Piece)</option>
-                        <option value="kg">KG (Per Kilogram)</option>
+                        @foreach($satuans_list as $s)
+                            <option value="{{ $s->id }}">{{ $s->nama_satuan }}</option>
+                        @endforeach
                     </select>
                 </div>
             </div>

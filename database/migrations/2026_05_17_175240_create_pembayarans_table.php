@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pembayaran', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('transaksi_id');
+            $table->foreign('transaksi_id')->references('id')->on('transaksi')->onDelete('cascade');
             $table->string('id_xendit')->nullable(); // ID dari payment gateway
             $table->datetime('tanggal_bayar')->nullable();
             $table->string('metode_bayar')->nullable(); // Cash, Transfer, QRIS, dll

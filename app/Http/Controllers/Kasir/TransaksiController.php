@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Kasir;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\Pelanggan;
 use App\Models\ItemLaundry;
@@ -12,11 +11,13 @@ use App\Models\Pencucian;
 use App\Models\Pengiriman;
 use App\Models\Promo;
 use App\Models\Transaksi;
-use App\Models\DetailTransaksi; // <-- Sudah Pasti Ada
-use App\Models\Pembayaran;      // <-- Sudah Pasti Ada
+use App\Models\DetailTransaksi;
+use App\Models\Pembayaran;
 use App\Models\MSatuan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class TransaksiController extends Controller
 {
@@ -33,38 +34,58 @@ class TransaksiController extends Controller
         // Search filter
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->whereHas('pelanggan', function ($q) use ($search) {
-                $q->where('nama_lengkap', 'like', "%$search%");
-            })->orWhere(DB::raw("CONCAT('INV-', LPAD(id, 5, '0'))"), 'like', "%$search%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('pelanggan', function ($q2) use ($search) {
+                    $q2->where('nama_lengkap', 'like', "%$search%");
+                })->orWhereRaw("CONCAT('INV-', LPAD(id, 5, '0')) LIKE ?", ["%{$search}%"]);
+            });
         }
 
         // Date filter
-        if ($request->has('date') && $request->date != '') {
-            $query->whereDate('tanggal_transaksi', $request->date);
+        $start_date = $request->input('start_date');
+        $end_date = $request->input('end_date');
+        
+        if ($start_date) {
+            $query->whereDate('tanggal_transaksi', '>=', $start_date);
+        }
+
+        if ($end_date) {
+            $query->whereDate('tanggal_transaksi', '<=', $end_date);
         }
 
         // Status filter
         if ($request->has('status') && $request->status != '') {
             $status = $request->status;
-            $query->whereHas('pembayaran', function ($q) use ($status) {
-                $q->where('status_bayar', $status);
-            });
+            if ($status === 'lunas') {
+                $query->whereHas('pembayaran', function($q) {
+                    $q->where('status_bayar', 'paid');
+                });
+            } elseif ($status === 'pending') {
+                $query->whereHas('pembayaran', function($q) {
+                    $q->where('status_bayar', '!=', 'paid');
+                });
+            }
         }
 
         $transaksis = $query->paginate(15);
 
         // Summary cards data
-        $baseQuery = Transaksi::where('user_id', Auth::id() ?? 1);
-        $totalTransaksi = $baseQuery->count();
-        $transaksiLunas = $baseQuery->whereHas('pembayaran', function ($q) {
+        $userId = Auth::id() ?? 1;
+        $totalTransaksi = Transaksi::where('user_id', $userId)->count();
+        
+        $transaksiLunas = Transaksi::where('user_id', $userId)->whereHas('pembayaran', function ($q) {
             $q->where('status_bayar', 'paid');
         })->count();
-        $transaksiPending = $baseQuery->whereHas('pembayaran', function ($q) {
-            $q->where('status_bayar', 'unpaid');
+        
+        $transaksiPending = Transaksi::where('user_id', $userId)->whereHas('pembayaran', function ($q) {
+            $q->where('status_bayar', '!=', 'paid');
         })->count();
         
         // Total transaksi hari ini
-        $totalHariIni = $baseQuery->whereDate('tanggal_transaksi', today())
+        $startOfDay = now()->startOfDay()->utc();
+        $endOfDay = now()->endOfDay()->utc();
+        $totalHariIni = Transaksi::where('user_id', $userId)
+            ->whereBetween('tanggal_transaksi', [$startOfDay, $endOfDay])
             ->whereHas('pembayaran', function ($q) {
                 $q->where('status_bayar', 'paid');
             })
@@ -77,7 +98,8 @@ class TransaksiController extends Controller
             'transaksiPending' => $transaksiPending,
             'totalHariIni' => $totalHariIni,
             'search' => $request->get('search'),
-            'date' => $request->get('date'),
+            'start_date' => $start_date,
+            'end_date' => $end_date,
             'status' => $request->get('status')
         ]);
     }
@@ -86,17 +108,24 @@ class TransaksiController extends Controller
     {
         $data = [
             'pelanggans' => Pelanggan::orderBy('nama_lengkap', 'asc')->get(),
-            'items' => ItemLaundry::with(['layanan', 'pencucian'])->orderBy('nama_item', 'asc')->get(),
+            'items' => ItemLaundry::with(['layanan', 'pencucian', 'mSatuan'])->orderBy('nama_item', 'asc')->get(),
             'layanans' => Layanan::orderBy('nama_layanan', 'asc')->get(),
             'pencucians' => Pencucian::orderBy('nama_pencucian', 'asc')->get(),
             'pengirimans' => Pengiriman::orderBy('id', 'asc')->get(),
             'promos' => Promo::orderBy('nama_promo', 'asc')->get(),
-            'satuans' => MSatuan::orderBy('nama_satuan', 'asc')->get()
+            'satuans' => MSatuan::orderBy('nama_satuan', 'asc')->get(),
+            'kendali' => \App\Models\FiturKendali::pluck('status', 'kode_fitur')->toArray(),
+            'fitur_tambahan' => \App\Models\FiturKendali::whereNotIn('kode_fitur', ['modul_promo', 'modal_jenis_pengiriman'])
+                                ->where('status', 'on')
+                                ->get()
         ];
 
         return view('kasir.transaksi.create', $data);
     }
 
+    // =========================================================================
+    // TRANSAKSI MANUAL (CASH / BAYAR NANTI)
+    // =========================================================================
     public function store(Request $request)
     {
         // Validasi input dasar
@@ -109,11 +138,9 @@ class TransaksiController extends Controller
 
         DB::beginTransaction();
         try {
-            // Logika Pintar Pelanggan: Cek atau Update atau Buat Baru
             $pelanggan_id = $request->pelanggan_id;
             
             if ($pelanggan_id) {
-                // Update Pelanggan yang Ada (jika data berubah)
                 $pelanggan = Pelanggan::find($pelanggan_id);
                 if ($pelanggan) {
                     $pelanggan->update([
@@ -125,13 +152,22 @@ class TransaksiController extends Controller
                     throw new \Exception("Data pelanggan lama tidak ditemukan.");
                 }
             } else {
-                // Buat Pelanggan Baru
-                $pelanggan = Pelanggan::create([
-                    'nama_lengkap' => $request->pelanggan_nama,
-                    'no_telepon' => $request->pelanggan_hp,
-                    'alamat' => $request->pelanggan_alamat,
-                ]);
-                $pelanggan_id = $pelanggan->id;
+                // Cek apakah nomor HP sudah ada di database untuk mencegah duplicate entry error
+                $existingPelanggan = Pelanggan::where('no_telepon', $request->pelanggan_hp)->first();
+                if ($existingPelanggan) {
+                    $pelanggan_id = $existingPelanggan->id;
+                    $existingPelanggan->update([
+                        'nama_lengkap' => $request->pelanggan_nama,
+                        'alamat' => $request->pelanggan_alamat,
+                    ]);
+                } else {
+                    $pelanggan = Pelanggan::create([
+                        'nama_lengkap' => $request->pelanggan_nama,
+                        'no_telepon' => $request->pelanggan_hp,
+                        'alamat' => $request->pelanggan_alamat,
+                    ]);
+                    $pelanggan_id = $pelanggan->id;
+                }
             }
 
             // 1. Simpan Transaksi Utama
@@ -185,8 +221,16 @@ class TransaksiController extends Controller
     public function struk($id)
     {
         $transaksi = Transaksi::with(['pelanggan', 'pengguna', 'promo', 'pengiriman', 'detailTransaksi.itemLaundry', 'detailTransaksi.layanan', 'detailTransaksi.pencucian', 'pembayaran'])->findOrFail($id);
+        $konfigurasi = \App\Models\Konfigurasi::pluck('value', 'key')->toArray();
         
-        return view('kasir.struk', compact('transaksi'));
+        $logoBase64 = null;
+        if (isset($konfigurasi['logo_toko']) && file_exists(public_path($konfigurasi['logo_toko']))) {
+            $type = pathinfo(public_path($konfigurasi['logo_toko']), PATHINFO_EXTENSION);
+            $data = file_get_contents(public_path($konfigurasi['logo_toko']));
+            $logoBase64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+        
+        return view('kasir.struk', compact('transaksi', 'konfigurasi', 'logoBase64'));
     }
 
     public function lunasi($id)
@@ -202,189 +246,153 @@ class TransaksiController extends Controller
         return redirect()->back()->with('success', 'Transaksi berhasil dilunasi!');
     }
 
-    // Method untuk edit pembayaran (ubah status bayar dan metode)
+
+
     public function updatePembayaran(Request $request, $id)
     {
         $request->validate([
-            'status_bayar' => 'required|in:paid,unpaid',
-            'metode_bayar' => 'required|string'
+            'status_bayar' => 'required|in:paid,unpaid'
         ]);
 
         $transaksi = Transaksi::findOrFail($id);
-        
         if ($transaksi->pembayaran) {
             $transaksi->pembayaran->update([
                 'status_bayar' => $request->status_bayar,
-                'metode_bayar' => $request->metode_bayar,
                 'tanggal_bayar' => ($request->status_bayar == 'paid') ? now() : null
             ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran berhasil diupdate!'
-            ]);
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Data pembayaran tidak ditemukan'
-        ], 404);
-    }
-
-    // Method untuk void transaksi (batalkan dengan alasan)
-    public function voidTransaksi(Request $request, $id)
-    {
-        $request->validate([
-            'alasan_void' => 'required|string|max:500'
-        ]);
-
-        $transaksi = Transaksi::findOrFail($id);
-
-        if ($transaksi->status_transaksi === 'selesai') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Tidak bisa membatalkan transaksi yang sudah selesai!'
-            ], 422);
-        }
-
-        $transaksi->update([
-            'status_transaksi' => 'void',
-            'alasan_void' => $request->alasan_void,
-            'void_at' => now()
-        ]);
+        session()->flash('success', 'Status pembayaran berhasil diupdate!');
 
         return response()->json([
             'success' => true,
-            'message' => 'Transaksi berhasil dibatalkan!'
+            'message' => 'Status pembayaran berhasil diupdate!'
         ]);
     }
 
     // =========================================================================
-    // INTEGRASI BARU: GENERATE DYNAMIC QRIS XENDIT VIA BACKEND (METODE cURL AMAN)
+    // INTEGRASI BARU: GENERATE INVOICE XENDIT VIA BACKEND
     // =========================================================================
-    public function buatQrisDinamis(Request $request)
+    // =========================================================================
+    // INTEGRASI BARU: GENERATE INVOICE XENDIT VIA BACKEND
+    // =========================================================================
+    public function buatInvoiceXendit(Request $request)
     {
         $request->validate([
             'pelanggan_nama' => 'required|string|max:255',
-            'pengiriman_id' => 'required|exists:jenis_pengiriman,id',
-            'cart' => 'required|array|min:1',
-            'total' => 'required|numeric'
+            'pengiriman_id'  => 'required|exists:jenis_pengiriman,id',
+            'cart'           => 'required|array|min:1',
+            'total'          => 'required|numeric'
         ]);
 
         DB::beginTransaction();
         try {
-            // Logika Pelanggan
-            $pelanggan_id = $request->pelanggan_id;
-            if (!$pelanggan_id) {
-                $pelanggan = Pelanggan::create([
-                    'nama_lengkap' => $request->pelanggan_nama,
-                    'no_telepon' => $request->pelanggan_hp,
-                    'alamat' => $request->pelanggan_alamat,
+            // 1. Buat ID Invoice unik untuk dikirim ke Xendit (Tidak perlu disimpan ke DB)
+            $external_id = 'MILA-' . time() . '-' . rand(100, 999);
+            $total_pembayaran = (int)$request->total;
+
+            // 2. Request ke API Xendit Invoices
+            $response = Http::withBasicAuth(env('XENDIT_SECRET_KEY'), '')
+                ->post('https://api.xendit.co/v2/invoices', [
+                    'external_id' => $external_id,
+                    'amount'      => $total_pembayaran,
+                    'description' => 'Pembayaran Laundry - ' . $request->pelanggan_nama,
+                    'customer'    => [
+                        'given_names'   => $request->pelanggan_nama,
+                        'mobile_number' => $request->pelanggan_hp,
+                    ],
+                    'customer_notification_preference' => [
+                        'invoice_created' => ['whatsapp', 'sms']
+                    ],
+                    'currency' => 'IDR'
                 ]);
-                $pelanggan_id = $pelanggan->id;
-            } else {
-                $pelanggan = Pelanggan::find($pelanggan_id);
-                if ($pelanggan) {
-                    $pelanggan->update([
+
+            // 3. Cek Respons API
+            if ($response->successful()) {
+                $responseData = $response->json();
+                $invoice_url = $responseData['invoice_url'];
+
+                // 4. Proses Simpan Data Pelanggan
+                $pelanggan_id = $request->pelanggan_id;
+                if (!$pelanggan_id) {
+                    $existingPelanggan = Pelanggan::where('no_telepon', $request->pelanggan_hp)->first();
+                    if ($existingPelanggan) {
+                        $pelanggan_id = $existingPelanggan->id;
+                        $existingPelanggan->update([
+                            'nama_lengkap' => $request->pelanggan_nama,
+                            'alamat'       => $request->pelanggan_alamat,
+                        ]);
+                    } else {
+                        $pelanggan = Pelanggan::create([
+                            'nama_lengkap' => $request->pelanggan_nama,
+                            'no_telepon'   => $request->pelanggan_hp,
+                            'alamat'       => $request->pelanggan_alamat,
+                        ]);
+                        $pelanggan_id = $pelanggan->id;
+                    }
+                } else {
+                    Pelanggan::where('id', $pelanggan_id)->update([
                         'nama_lengkap' => $request->pelanggan_nama,
-                        'no_telepon' => $request->pelanggan_hp,
-                        'alamat' => $request->pelanggan_alamat,
+                        'no_telepon'   => $request->pelanggan_hp,
+                        'alamat'       => $request->pelanggan_alamat,
                     ]);
                 }
-            }
 
-            // Simpan Transaksi Utama
-            $transaksi = Transaksi::create([
-                'pelanggan_id' => $pelanggan_id,
-                'user_id' => Auth::id() ?? 1, 
-                'promo_id' => $request->promo_id > 0 ? $request->promo_id : null,
-                'pengiriman_id' => $request->pengiriman_id,
-                'tanggal_transaksi' => now(),
-                'total_transaksi' => $request->total,
-            ]);
-
-            // Simpan Detail Transaksi
-            foreach ($request->cart as $item) {
-                DetailTransaksi::create([
-                    'transaksi_id' => $transaksi->id,
-                    'item_id' => $item['item_id'] ?? null,
-                    'layanan_id' => $item['layanan_id'] ?? null,
-                    'pencucian_id' => $item['pencucian_id'] ?? null,
-                    'harga_unit' => $item['unitPrice'] ?? ($item['price'] ?? 0),
-                    'total_berat' => $item['qty_num'] ?? 1,
-                    'subtotal' => $item['price'] ?? 0,
+                // 5. Simpan Data Transaksi Utama (Simpan URL ke snap_token)
+                $transaksi = Transaksi::create([
+                    'pelanggan_id'      => $pelanggan_id,
+                    'user_id'           => Auth::id() ?? 1, 
+                    'promo_id'          => $request->promo_id > 0 ? $request->promo_id : null,
+                    'pengiriman_id'     => $request->pengiriman_id,
+                    'tanggal_transaksi' => now(),
+                    'total_transaksi'   => $total_pembayaran,
+                    'snap_token'        => $invoice_url, // Menyimpan link Xendit ke sini
                 ]);
+
+                // 6. Simpan Detail Item Keranjang
+                foreach ($request->cart as $item) {
+                    DetailTransaksi::create([
+                        'transaksi_id'  => $transaksi->id,
+                        'item_id'       => $item['item_id'] ?? null,
+                        'layanan_id'    => $item['layanan_id'] ?? null,
+                        'pencucian_id'  => $item['pencucian_id'] ?? null,
+                        'harga_unit'    => $item['unitPrice'] ?? ($item['price'] ?? 0),
+                        'total_berat'   => $item['qty_num'] ?? 1,
+                        'subtotal'      => $item['price'] ?? 0,
+                    ]);
+                }
+
+                // 7. Simpan Riwayat Pembayaran (Status Pending & id_xendit)
+                Pembayaran::create([
+                    'transaksi_id'  => $transaksi->id,
+                    'id_xendit'     => $responseData['id'], // Kunci referensi callback nantinya
+                    'metode_bayar'  => 'Xendit Invoice',
+                    'status_bayar'  => 'pending', 
+                ]);
+
+                DB::commit();
+
+                // 8. Kirim link Invoice ke frontend untuk dibuka di tab baru
+                return response()->json([
+                    'success' => true,
+                    'invoice_url' => $invoice_url
+                ]);
+
+            } else {
+                DB::rollBack();
+                Log::error('Xendit Request Gagal: ' . $response->body());
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal membuat link Xendit: ' . $response->json('message', 'Terjadi kesalahan pada server Xendit.')
+                ], 500);
             }
-
-            $id_nota_lokal = 'MILA-' . $transaksi->id . '-' . now()->timestamp;
-            
-            // Mengambil Secret Key langsung dari .env agar dinamis dan menghindari typo
-            $secret_key = env('XENDIT_SECRET_KEY');
-
-            // Kita tentukan callback url berdasarkan APP_URL dari .env secara paksa
-            // Jangan pakai url() karena akan mengikuti browser user (misal laragon.test) yang ditolak Xendit
-            $app_url = rtrim(env('APP_URL', 'http://localhost'), '/');
-            $callback_url = $app_url . '/api/callback-xendit';
-            
-            // Konfigurasi Payload Xendit
-            $payload = [
-                'external_id' => $id_nota_lokal,
-                'type' => 'DYNAMIC',
-                'amount' => (int)$request->total,
-            ];
-
-            // Tambahkan callback_url ke payload hanya jika menggunakan domain asli / ngrok (bukan localhost)
-            // Karena Xendit akan menolak request jika URL-nya localhost/127.0.0.1
-            if (!str_contains($callback_url, 'localhost') && !str_contains($callback_url, '127.0.0.1')) {
-                $payload['callback_url'] = $callback_url;
-            }
-
-            $ch = curl_init();
-            
-            \Illuminate\Support\Facades\Log::info('Xendit Payload:', $payload);
-            \Illuminate\Support\Facades\Log::info('Xendit URL: ' . $callback_url);
-
-            curl_setopt_array($ch, [
-                CURLOPT_URL => 'https://api.xendit.co/qr_codes',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_POST => true,
-                CURLOPT_USERPWD => $secret_key . ':',
-                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-                CURLOPT_POSTFIELDS => json_encode($payload)
-            ]);
-
-            $responseXendit = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            $responseData = json_decode($responseXendit, true);
-
-            if ($httpCode !== 200 && $httpCode !== 201) {
-                throw new \Exception($responseData['message'] ?? 'Respon Xendit API bermasalah.');
-            }
-
-            // Simpan Data Pembayaran awal (Status: unpaid)
-            Pembayaran::create([
-                'transaksi_id' => $transaksi->id,
-                'id_xendit' => $responseData['id'], 
-                'tanggal_bayar' => null,
-                'metode_bayar' => 'QRIS Cashless',
-                'status_bayar' => 'unpaid',
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'qr_data' => $responseData['qr_string']
-            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Illuminate\Support\Facades\Log::error('QRIS Error: ' . $e->getMessage());
+            Log::error('Controller Error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal memproses QRIS Xendit: ' . $e->getMessage()
+                'message' => 'Sistem gagal memproses transaksi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -394,19 +402,83 @@ class TransaksiController extends Controller
     // =========================================================================
     public function handleCallback(Request $request)
     {
-        $id_qris_xendit = $request->id;
-        $status_dari_xendit = $request->status;
+        try {
+            // 1. Catat semua data yang masuk dari Xendit ke file log Laravel
+            // Bisa dicek di file storage/logs/laravel.log jika terjadi error
+            Log::info('Webhook Xendit Masuk:', $request->all());
 
-        if ($status_dari_xendit == 'COMPLETED' || $status_dari_xendit == 'PAID') {
-            $pembayaran = Pembayaran::where('id_xendit', $id_qris_xendit)->first();
-            if ($pembayaran) {
-                $pembayaran->update([
-                    'status_bayar' => 'paid',
-                    'tanggal_bayar' => now()
-                ]);
+            // 2. Amankan webhook (Komentar baris if di bawah jika error 401 saat testing)
+            $xenditXCallbackToken = env('XENDIT_WEBHOOK_TOKEN'); 
+            if ($xenditXCallbackToken && $request->header('x-callback-token') !== $xenditXCallbackToken) {
+                Log::warning('Token Callback Xendit Tidak Valid!');
+                return response()->json(['message' => 'Unauthorized'], 401);
             }
-        }
 
-        return response()->json(['status' => 'CALLBACK_ACCEPTED']);
+            // 3. Ambil data dari payload INVOICE
+            $id_invoice_xendit = $request->id;
+            $status = $request->status;
+
+            // Jika yang masuk bukan invoice (misal salah pasang URL di dashboard), abaikan agar tidak error 500
+            if (!$id_invoice_xendit) {
+                Log::warning('Bukan payload Invoice. Mengabaikan request.');
+                return response()->json(['status' => 'IGNORED']);
+            }
+
+            // 4. Cari data pembayaran di database kita
+            $pembayaran = Pembayaran::where('id_xendit', $id_invoice_xendit)->first();
+
+            if ($pembayaran) {
+                if ($status === 'PAID' || $status === 'SETTLED') {
+                    $pembayaran->update([
+                        'status_bayar' => 'paid',
+                        'tanggal_bayar' => now()
+                    ]);
+                    Log::info("Pembayaran dengan ID Xendit {$id_invoice_xendit} BERHASIL LUNAS.");
+                    
+                } else if ($status === 'EXPIRED') {
+                    $pembayaran->update([
+                        'status_bayar' => 'failed/expired'
+                    ]);
+                    Log::info("Pembayaran dengan ID Xendit {$id_invoice_xendit} KEDALUWARSA.");
+                }
+            } else {
+                Log::error("Pembayaran dengan ID Xendit {$id_invoice_xendit} TIDAK DITEMUKAN di database.");
+            }
+
+            return response()->json(['status' => 'CALLBACK_ACCEPTED']);
+
+        } catch (\Exception $e) {
+            // Jika ada kode yang error, catat di log dan kembalikan response 500
+            Log::error('Error pada Callback Xendit: ' . $e->getMessage());
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    // =========================================================================
+    // FITUR AUTO-REFRESH (AJAX POLLING) UNTUK HALAMAN MONITORING
+    // =========================================================================
+    public function checkStatus(Request $request)
+    {
+        try {
+            $ids = $request->ids; 
+            
+            // Cek apakah data yang dikirim kosong atau bukan array
+            if (empty($ids) || !is_array($ids)) {
+                return response()->json([]);
+            }
+
+            // Gunakan path model secara eksplisit untuk mencegah error "Class not found"
+            $pembayarans = \App\Models\Pembayaran::whereIn('transaksi_id', $ids)
+                ->get(['transaksi_id', 'status_bayar']);
+            
+            return response()->json($pembayarans);
+
+        } catch (\Exception $e) {
+            // Catat error aslinya ke log Laravel agar mudah dilacak
+            \Illuminate\Support\Facades\Log::error('Error Check Status: ' . $e->getMessage());
+            
+            // Kembalikan array kosong agar JavaScript tidak crash
+            return response()->json([]); 
+        }
     }
 }

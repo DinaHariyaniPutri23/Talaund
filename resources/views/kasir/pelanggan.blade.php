@@ -7,8 +7,10 @@
 @section('content')
     <div class="flex justify-start items-center mb-[20px] mt-[15px]">
         <div class="relative w-full max-w-[500px]">
-            <svg class="absolute left-[15px] top-1/2 -translate-y-1/2 text-[#a3aed0] w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            <input type="text" class="w-full py-[12px] pr-[15px] pl-[45px] border border-[#e0e5f2] rounded-[10px] outline-none text-[#2b3674] font-sans bg-white focus:border-[#1a73e8]" placeholder="Cari berdasarkan nama atau nomor HP...">
+            <form action="{{ route('dashboard.kasir.pelanggan') }}" method="GET">
+                <svg class="absolute left-[15px] top-1/2 -translate-y-1/2 text-[#a3aed0] w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" name="search" value="{{ request('search') }}" class="w-full py-[12px] pr-[15px] pl-[45px] border border-[#e0e5f2] rounded-[10px] outline-none text-[#2b3674] font-sans bg-white focus:border-[#1a73e8]" placeholder="Cari berdasarkan nama atau nomor HP...">
+            </form>
         </div>
     </div>
     
@@ -53,13 +55,8 @@
             </tbody>
         </table>
         
-        <div class="flex justify-between items-center p-[20px] bg-white border-t border-[#f4f7fe] rounded-b-[20px]">
-            <div class="text-[#2b3674] text-[13px] font-medium">Menampilkan {{ $pelanggans->count() }} data pelanggan</div>
-            <div class="flex gap-[5px]">
-                <button class="w-[35px] h-[35px] flex items-center justify-center rounded-[8px] border border-[#e0e5f2] bg-white cursor-pointer text-[#2b3674] font-semibold hover:bg-[#f4f7fe]"><svg class="w-[16px] h-[16px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
-                <button class="w-[35px] h-[35px] flex items-center justify-center rounded-[8px] border border-[#0056D2] bg-[#0056D2] text-white cursor-pointer font-semibold">1</button>
-                <button class="w-[35px] h-[35px] flex items-center justify-center rounded-[8px] border border-[#e0e5f2] bg-white cursor-pointer text-[#2b3674] font-semibold hover:bg-[#f4f7fe]"><svg class="w-[16px] h-[16px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></button>
-            </div>
+        <div class="p-[20px] border-t border-[#f4f7fe]">
+            {{ $pelanggans->withQueryString()->links('pagination::tailwind') }}
         </div>
     </div>
 

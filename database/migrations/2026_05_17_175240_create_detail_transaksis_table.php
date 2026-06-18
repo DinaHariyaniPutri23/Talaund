@@ -24,6 +24,12 @@ return new class extends Migration
             $table->integer('total_berat')->default(1); // Qty / Berat
             $table->integer('subtotal')->default(0); // harga_unit * total_berat * multiplier (jika ada)
 
+            // Foreign Key Constraints
+            $table->foreign('transaksi_id')->references('id')->on('transaksi')->onDelete('cascade');
+            $table->foreign('item_id')->references('id')->on('item_laundry')->onDelete('set null');
+            $table->foreign('layanan_id')->references('id')->on('layanan')->onDelete('set null');
+            $table->foreign('pencucian_id')->references('id')->on('pencucian')->onDelete('set null');
+
             $table->timestamps();
         });
     }

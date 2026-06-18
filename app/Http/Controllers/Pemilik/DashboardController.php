@@ -64,19 +64,53 @@ class DashboardController extends Controller
             $q->where('status_bayar', '!=', 'paid');
         })->count();
 
-        // Tren Pendapatan 30 Hari Terakhir
+        // Tren Pendapatan Berdasarkan Filter
+        $filter = request('filter', 'harian');
         $trendData = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = Carbon::now()->subDays($i);
-            $omzet = Transaksi::whereHas('pembayaran', function($q) {
-                $q->where('status_bayar', 'paid');
-            })->whereDate('tanggal_transaksi', $date)
-                ->sum('total_transaksi');
-            
-            $trendData[] = [
-                'date' => $date->format('d M'),
-                'omzet' => $omzet
-            ];
+
+        if ($filter == 'tahunan') {
+            for ($i = 4; $i >= 0; $i--) {
+                $year = Carbon::now()->subYears($i)->year;
+                $omzet = Transaksi::whereHas('pembayaran', function($q) {
+                    $q->where('status_bayar', 'paid');
+                })->whereYear('tanggal_transaksi', $year)
+                  ->sum('total_transaksi');
+                
+                $trendData[] = [
+                    'date' => (string)$year,
+                    'omzet' => $omzet
+                ];
+            }
+            $chartSubtitle = "Omzet 5 Tahun Terakhir";
+        } elseif ($filter == 'bulanan') {
+            for ($i = 1; $i <= 12; $i++) {
+                $omzet = Transaksi::whereHas('pembayaran', function($q) {
+                    $q->where('status_bayar', 'paid');
+                })->whereYear('tanggal_transaksi', Carbon::now()->year)
+                  ->whereMonth('tanggal_transaksi', $i)
+                  ->sum('total_transaksi');
+                
+                $trendData[] = [
+                    'date' => Carbon::create()->month($i)->translatedFormat('M'),
+                    'omzet' => $omzet
+                ];
+            }
+            $chartSubtitle = "Omzet Per Bulan (" . Carbon::now()->year . ")";
+        } else {
+            // Default harian (30 Hari)
+            for ($i = 29; $i >= 0; $i--) {
+                $date = Carbon::now()->subDays($i);
+                $omzet = Transaksi::whereHas('pembayaran', function($q) {
+                    $q->where('status_bayar', 'paid');
+                })->whereDate('tanggal_transaksi', $date)
+                    ->sum('total_transaksi');
+                
+                $trendData[] = [
+                    'date' => $date->format('d M'),
+                    'omzet' => $omzet
+                ];
+            }
+            $chartSubtitle = "Omzet Per Hari (30 Hari Terakhir)";
         }
 
         // Transaksi Terbaru Hari Ini
@@ -96,6 +130,8 @@ class DashboardController extends Controller
             'piutangBerjalan',
             'totalBelumLunas',
             'trendData',
+            'chartSubtitle',
+            'filter',
             'transaksiTerbaru'
         ));
     }

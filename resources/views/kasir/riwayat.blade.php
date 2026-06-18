@@ -206,7 +206,7 @@
 </div>
 
 <div class="mt-6">
-    {{ $transaksis->links() }}
+    {{ $transaksis->withQueryString()->links() }}
 </div>
 
 @endsection

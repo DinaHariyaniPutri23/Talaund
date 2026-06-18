@@ -29,10 +29,10 @@ return new class extends Migration
             // Akan kita biarkan lepas dulu (tanpa constraint foreign key ketat) 
             // karena Laravel Eloquent bisa mengelolanya di level aplikasi.
             // Tapi jika ingin ketat:
-            // $table->foreign('pelanggan_id')->references('id')->on('pelanggan')->onDelete('cascade');
-            // $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            // $table->foreign('promo_id')->references('id')->on('promo')->onDelete('set null');
-            // $table->foreign('pengiriman_id')->references('id')->on('jenis_pengiriman')->onDelete('cascade');
+            $table->foreign('pelanggan_id')->references('id')->on('pelanggan')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('user')->onDelete('cascade');
+            $table->foreign('promo_id')->references('id')->on('promo')->onDelete('set null');
+            $table->foreign('pengiriman_id')->references('id')->on('jenis_pengiriman')->onDelete('cascade');
         });
     }
 
